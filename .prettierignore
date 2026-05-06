@@ -1,10 +1,8 @@
 node_modules/
 dist/
 build/
-.next/
-.env
-.env.local
-.env.*.local
-*.log
 coverage/
+.next/
 .turbo/
+*.lock
+pnpm-lock.yaml

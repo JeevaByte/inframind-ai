@@ -1,0 +1,32 @@
+{
+  "name": "@inframind/config",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared runtime configuration helpers for InfraMind AI",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev": "tsc --project tsconfig.json --watch",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:ci": "vitest run --reporter=verbose",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.7",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}
