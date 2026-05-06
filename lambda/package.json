@@ -1,0 +1,16 @@
+{
+  "name": "inframind-ai-lambda",
+  "version": "1.0.0",
+  "description": "InfraMind AI Lambda API",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test src/**/*.test.js",
+    "lint": "eslint src --ext .js --max-warnings 0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}

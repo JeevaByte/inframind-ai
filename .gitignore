@@ -1,0 +1,24 @@
+# Local development
+.env
+.env.local
+.env.*.local
+
+# Terraform
+infrastructure/terraform/.terraform/
+infrastructure/terraform/.terraform.lock.hcl
+infrastructure/terraform/**/*.tfstate
+infrastructure/terraform/**/*.tfstate.backup
+infrastructure/terraform/**/tfplan
+infrastructure/terraform/**/plan.txt
+
+# Lambda build artefacts
+lambda.zip
+lambda/node_modules/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db

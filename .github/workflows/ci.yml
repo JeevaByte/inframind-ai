@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "develop", "feature/**"]
+  pull_request:
+    branches: ["main", "develop"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: lambda/package-lock.json
+
+      - name: Install dependencies
+        working-directory: lambda
+        run: npm ci
+
+      - name: Lint
+        working-directory: lambda
+        run: npm run lint --if-present
+
+      - name: Run tests
+        working-directory: lambda
+        run: npm test --if-present
+
+  terraform-validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.8"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init (no backend)
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        run: terraform validate
