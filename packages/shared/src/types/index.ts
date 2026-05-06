@@ -56,10 +56,10 @@ export interface User {
 }
 
 // ---------------------------------------------------------------------------
-// Organisation / Workspace
+// Organization / Workspace
 // ---------------------------------------------------------------------------
 
-export interface Organisation {
+export interface Organization {
   id: ID;
   slug: string;
   name: string;
@@ -78,7 +78,7 @@ export type CloudProvider = "aws" | "gcp" | "azure" | "hetzner" | "custom";
 
 export interface Resource {
   id: ID;
-  organisationId: ID;
+  organizationId: ID;
   name: string;
   type: string;
   provider: CloudProvider;
@@ -106,7 +106,7 @@ export interface AgentMessage {
 
 export interface AgentSession {
   id: ID;
-  organisationId: ID;
+  organizationId: ID;
   userId: ID;
   status: AgentStatus;
   messages: AgentMessage[];
