@@ -12,7 +12,7 @@ export function ThemeToggle() {
     setMounted(true)
     
     const isDarkMode =
-      localStorage.theme === "dark" ||
+      localStorage["theme"] === "dark" ||
       (!("theme" in localStorage) &&
         window.matchMedia("(prefers-color-scheme: dark)").matches)
     
@@ -27,11 +27,11 @@ export function ThemeToggle() {
     
     if (isDarkMode) {
       document.documentElement.classList.remove("dark")
-      localStorage.theme = "light"
+      localStorage["theme"] = "light"
       setIsDark(false)
     } else {
       document.documentElement.classList.add("dark")
-      localStorage.theme = "dark"
+      localStorage["theme"] = "dark"
       setIsDark(true)
     }
   }
