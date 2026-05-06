@@ -32,6 +32,8 @@ def _detect_file_type(filename: str, content: bytes) -> InfraFileType:
     if name_lower.endswith((".yaml", ".yml")):
         # Heuristic: look for CloudFormation / Kubernetes markers
         text = content.decode("utf-8", errors="ignore")
+        if all(marker in text for marker in ["on:", "jobs:"]):
+            return InfraFileType.GITHUB_ACTIONS
         if "AWSTemplateFormatVersion" in text or "Resources:" in text:
             return InfraFileType.CLOUDFORMATION
         if "apiVersion" in text and "kind" in text:

@@ -41,6 +41,11 @@ class AnalysisSummaryResponse(BaseModel):
     info: int = 0
     score: Optional[float] = None
     summary: Optional[str] = None
+    security_score: Optional[float] = None
+    reliability_score: Optional[float] = None
+    cost_optimization_score: Optional[float] = None
+    compliance_score: Optional[float] = None
+    deployment_readiness: Optional[str] = None
 
 
 class BulkAnalysisResponse(BaseModel):

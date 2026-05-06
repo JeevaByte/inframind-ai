@@ -10,7 +10,7 @@ interface IssueCardProps {
     severity: "critical" | "high" | "medium" | "low"
     category: string
     recommendation: string
-    estimatedCost: string
+    estimatedImpact: string
   }
 }
 
@@ -48,7 +48,7 @@ export function IssueCard({ issue }: IssueCardProps) {
         </div>
 
         <div className="text-sm text-slate-600 dark:text-slate-400">
-          Estimated savings: <span className="font-semibold">{issue.estimatedCost}</span>
+          Estimated impact: <span className="font-semibold">{issue.estimatedImpact}</span>
         </div>
       </CardContent>
     </Card>

@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Optional
 
 from app.config import Settings, get_settings
 from app.models.common import AnalysisResult, AnalysisStatus, AnalysisType
+from app.services.ai.analysis_service import AIAnalysisService
 from app.services.file_service import FileService, get_file_service
-from app.services.mock_ai_service import MockAIService
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class AnalysisService:
     def __init__(self, settings: Settings, file_service: FileService) -> None:
         self._settings = settings
         self._file_service = file_service
-        self._ai = MockAIService()
+        self._ai = AIAnalysisService(settings)
 
     async def start_analysis(
         self,
@@ -47,15 +47,24 @@ class AnalysisService:
         # Run analysis synchronously for the mock (in production: dispatch to a task queue)
         try:
             content = await self._file_service.read_content(file_id)
-            findings, summary, score = await self._ai.analyze(
+            ai_result = await self._ai.analyze(
                 content=content or "",
+                filename=file_meta.original_filename,
                 file_type=file_meta.file_type,
                 analysis_type=analysis_type,
                 options=options,
             )
-            result.findings = findings
-            result.summary = summary
-            result.score = score
+            result.findings = ai_result["findings"]
+            result.summary = ai_result["summary"]
+            result.score = ai_result["score"]
+            result.security_score = ai_result["security_score"]
+            result.reliability_score = ai_result["reliability_score"]
+            result.cost_optimization_score = ai_result["cost_optimization_score"]
+            result.compliance_score = ai_result["compliance_score"]
+            result.deployment_readiness = ai_result["deployment_readiness"]
+            result.architecture_summary = ai_result["architecture_summary"]
+            result.top_recommendations = ai_result["top_recommendations"]
+            result.metadata = ai_result["metadata"]
             result.status = AnalysisStatus.COMPLETED
             result.completed_at = datetime.now(timezone.utc)
         except Exception as exc:

@@ -7,6 +7,7 @@ from uuid import UUID
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 from app.models.common import AnalysisResult, AnalysisType, APIResponse
+from app.models.common import AnalysisResult, AnalysisType, APIResponse, Severity
 from app.models.request import AnalysisRequestBody, BulkAnalysisRequestBody
 from app.models.response import AnalysisResponse, AnalysisSummaryResponse, BulkAnalysisResponse
 from app.services.analysis_service import AnalysisService, get_analysis_service
@@ -58,7 +59,7 @@ async def trigger_bulk_analysis(
     summary="Trigger analysis for a file",
     description=(
         "Start an analysis job for the specified infrastructure file. "
-        "Supported analysis types: `security`, `cost`, `compliance`, `full`."
+        "Supported analysis types: `security`, `reliability`, `cost`, `compliance`, `full`."
     ),
 )
 async def trigger_analysis(
@@ -128,6 +129,11 @@ async def get_analysis_summary(
             low=counts[Severity.LOW],
             info=counts[Severity.INFO],
             score=result.score,
+            security_score=result.security_score,
+            reliability_score=result.reliability_score,
+            cost_optimization_score=result.cost_optimization_score,
+            compliance_score=result.compliance_score,
+            deployment_readiness=result.deployment_readiness,
             summary=result.summary,
         )
     )

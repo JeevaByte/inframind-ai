@@ -34,7 +34,7 @@ export interface AnalysisSubmission {
   analysis_id: string
   file_id: string
   status: "pending" | "running" | "completed" | "failed"
-  analysis_type: "security" | "cost" | "compliance" | "full"
+  analysis_type: "security" | "reliability" | "cost" | "compliance" | "full"
   message: string
 }
 
@@ -47,6 +47,7 @@ export interface BackendFinding {
   id: string
   rule_id: string
   title: string
+  category: "security" | "reliability" | "cost" | "compliance"
   description: string
   severity: "critical" | "high" | "medium" | "low" | "info"
   resource?: string | null
@@ -59,11 +60,18 @@ export interface BackendFinding {
 export interface BackendAnalysisResult {
   analysis_id: string
   file_id: string
-  analysis_type: "security" | "cost" | "compliance" | "full"
+  analysis_type: "security" | "reliability" | "cost" | "compliance" | "full"
   status: "pending" | "running" | "completed" | "failed"
   findings: BackendFinding[]
   summary?: string | null
   score?: number | null
+  security_score?: number | null
+  reliability_score?: number | null
+  cost_optimization_score?: number | null
+  compliance_score?: number | null
+  deployment_readiness?: string | null
+  architecture_summary?: string | null
+  top_recommendations?: string[] | null
   started_at?: string | null
   completed_at?: string | null
   error_message?: string | null

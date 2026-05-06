@@ -78,6 +78,20 @@ class TestAnalysisEndpoints:
         summary = r.json()["data"]
         assert summary["total_findings"] >= 0
         assert "score" in summary
+        assert "deployment_readiness" in summary
+
+    def test_full_analysis_includes_ai_metadata(self):
+        file_id = _upload_tf(_VULNERABLE_TF, "ai-demo.tf")
+        post_r = client.post(f"/api/v1/analysis/{file_id}", json={"analysis_type": "full"})
+        analysis_id = post_r.json()["data"]["analysis_id"]
+
+        r = client.get(f"/api/v1/analysis/{analysis_id}")
+        assert r.status_code == 200
+        data = r.json()["data"]
+        assert "deployment_readiness" in data
+        assert "architecture_summary" in data
+        assert "top_recommendations" in data
+        assert "security_score" in data
 
     def test_clean_file_gets_perfect_score(self):
         file_id = _upload_tf(_CLEAN_TF, "clean.tf")

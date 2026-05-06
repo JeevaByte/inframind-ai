@@ -17,9 +17,9 @@ interface IssueViewModel {
   title: string
   description: string
   severity: "critical" | "high" | "medium" | "low"
-  category: string
+  category: "security" | "reliability" | "cost" | "compliance"
   recommendation: string
-  estimatedCost: string
+  estimatedImpact: string
 }
 
 interface ResultsState {
@@ -36,15 +36,26 @@ interface ResultsState {
   fileNames: string[]
   categorySummary: {
     security: number
+    reliability: number
     cost: number
     compliance: number
   }
+  scoreBreakdown: {
+    security: number | null
+    reliability: number | null
+    cost: number | null
+    compliance: number | null
+  }
+  deploymentReadiness: string | null
+  architectureSummary: string | null
+  topRecommendations: string[]
   perFileSummary: Array<{
     fileId: string
     fileName: string
     score: number | null
     totalIssues: number
     security: number
+    reliability: number
     cost: number
     compliance: number
     critical: number
@@ -55,8 +66,14 @@ interface ResultsState {
 }
 
 function findingToCategory(finding: BackendFinding) {
+  if (finding.category) {
+    return finding.category
+  }
   if (finding.rule_id.startsWith("SEC")) {
     return "security"
+  }
+  if (finding.rule_id.startsWith("REL")) {
+    return "reliability"
   }
   if (finding.rule_id.startsWith("COST")) {
     return "cost"
@@ -96,7 +113,7 @@ export default function ResultsPage() {
         const fileNameById = new Map(fileMetadata.map((file) => [file.file_id, file.original_filename]))
 
         const summary = { critical: 0, high: 0, medium: 0, low: 0, info: 0 }
-        const categorySummary = { security: 0, cost: 0, compliance: 0 }
+        const categorySummary = { security: 0, reliability: 0, cost: 0, compliance: 0 }
         const issues = analyses.flatMap((analysis) =>
           analysis.findings.map((finding) => {
             summary[finding.severity] += 1
@@ -112,9 +129,11 @@ export default function ResultsPage() {
               severity: finding.severity === "info" ? "low" : finding.severity,
               category,
               recommendation: finding.recommendation,
-              estimatedCost: typeof finding.metadata["estimated_cost"] === "string"
-                ? finding.metadata["estimated_cost"]
-                : "N/A",
+              estimatedImpact: typeof finding.metadata["estimated_impact"] === "string"
+                ? finding.metadata["estimated_impact"]
+                : typeof finding.metadata["estimated_cost"] === "string"
+                  ? finding.metadata["estimated_cost"]
+                  : "Operational impact not provided",
             }
           })
         )
@@ -126,6 +145,7 @@ export default function ResultsPage() {
             score: typeof analysis.score === "number" ? analysis.score : null,
             totalIssues: analysis.findings.length,
             security: 0,
+            reliability: 0,
             cost: 0,
             compliance: 0,
             critical: 0,
@@ -166,6 +186,15 @@ export default function ResultsPage() {
             summary,
             averageScore,
             categorySummary,
+            scoreBreakdown: {
+              security: analyses[0]?.security_score ?? null,
+              reliability: analyses[0]?.reliability_score ?? null,
+              cost: analyses[0]?.cost_optimization_score ?? null,
+              compliance: analyses[0]?.compliance_score ?? null,
+            },
+            deploymentReadiness: analyses[0]?.deployment_readiness ?? null,
+            architectureSummary: analyses[0]?.architecture_summary ?? null,
+            topRecommendations: analyses.flatMap((analysis) => analysis.top_recommendations || []).slice(0, 5),
             perFileSummary,
             fileNames: analyses.map((analysis) => fileNameById.get(analysis.file_id) || analysis.file_id),
           })
@@ -254,7 +283,7 @@ export default function ResultsPage() {
         `   Category: ${issue.category}`,
         `   ${issue.description}`,
         `   Recommendation: ${issue.recommendation}`,
-        `   Estimated savings: ${issue.estimatedCost}`,
+        `   Estimated impact: ${issue.estimatedImpact}`,
       ]),
     ]
 
@@ -290,7 +319,7 @@ export default function ResultsPage() {
     setActionMessage("Analysis report downloaded.")
   }
 
-  const filteredIssues = (category: "security" | "cost" | "compliance") =>
+  const filteredIssues = (category: "security" | "reliability" | "cost" | "compliance") =>
     resultsState?.issues.filter((issue) => issue.category === category) || []
 
   const totalIssues = resultsState?.issues.length || 0
@@ -305,7 +334,7 @@ export default function ResultsPage() {
         <div className="p-8">
           {isLoading ? (
             <div className="rounded-lg border border-slate-200 bg-white p-6 text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
-              Loading analysis results...
+              AI is loading the infrastructure review...
             </div>
           ) : errorMessage ? (
             <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
@@ -316,7 +345,7 @@ export default function ResultsPage() {
           <div className="mb-8 flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-                Analysis Results
+                AI Infrastructure Review
               </h1>
               <p className="text-slate-600 dark:text-slate-400">
                 {resultsState.fileNames.join(", ")} • {statusText}
@@ -345,7 +374,7 @@ export default function ResultsPage() {
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Severity Summary</CardTitle>
+                  <CardTitle>AI Findings Summary</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <SummaryChart
@@ -373,11 +402,11 @@ export default function ResultsPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">Critical Issues</CardTitle>
+                  <CardTitle className="text-sm">Deployment Readiness</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold text-red-600">
-                    {resultsState.summary.critical}
+                  <p className="text-2xl font-bold text-blue-600">
+                    {resultsState.deploymentReadiness || "Needs review"}
                   </p>
                 </CardContent>
               </Card>
@@ -406,6 +435,10 @@ export default function ResultsPage() {
                   <span className="font-semibold text-slate-900 dark:text-white">{resultsState.categorySummary.security}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-600 dark:text-slate-400">Reliability</span>
+                  <span className="font-semibold text-slate-900 dark:text-white">{resultsState.categorySummary.reliability}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-600 dark:text-slate-400">Cost</span>
                   <span className="font-semibold text-slate-900 dark:text-white">{resultsState.categorySummary.cost}</span>
                 </div>
@@ -418,10 +451,40 @@ export default function ResultsPage() {
 
             <Card className="lg:col-span-2">
               <CardHeader>
-                <CardTitle>Per-file Issue Summary</CardTitle>
+                <CardTitle>AI Review Highlights</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {resultsState.perFileSummary.map((file) => (
+              <CardContent className="space-y-6">
+                <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+                  <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Architecture Summary</p>
+                  <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-300">
+                    {resultsState.architectureSummary || "Architecture summary unavailable."}
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Score Breakdown</p>
+                    <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                      <div className="flex items-center justify-between"><span>Security</span><span>{resultsState.scoreBreakdown.security !== null ? `${resultsState.scoreBreakdown.security}%` : "N/A"}</span></div>
+                      <div className="flex items-center justify-between"><span>Reliability</span><span>{resultsState.scoreBreakdown.reliability !== null ? `${resultsState.scoreBreakdown.reliability}%` : "N/A"}</span></div>
+                      <div className="flex items-center justify-between"><span>Cost</span><span>{resultsState.scoreBreakdown.cost !== null ? `${resultsState.scoreBreakdown.cost}%` : "N/A"}</span></div>
+                      <div className="flex items-center justify-between"><span>Compliance</span><span>{resultsState.scoreBreakdown.compliance !== null ? `${resultsState.scoreBreakdown.compliance}%` : "N/A"}</span></div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Top Recommendations</p>
+                    <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      {resultsState.topRecommendations.length > 0 ? resultsState.topRecommendations.map((recommendation) => (
+                        <li key={recommendation}>• {recommendation}</li>
+                      )) : <li>No AI recommendations available.</li>}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Per-file Issue Summary</p>
+                  {resultsState.perFileSummary.map((file) => (
                   <div key={file.fileId} className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
                     <div className="mb-3 flex items-start justify-between gap-4">
                       <div>
@@ -439,7 +502,7 @@ export default function ResultsPage() {
                       <div className="rounded-md bg-slate-50 p-3 dark:bg-slate-900">
                         <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Categories</p>
                         <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
-                          Security {file.security} | Cost {file.cost} | Compliance {file.compliance}
+                          Security {file.security} | Reliability {file.reliability} | Cost {file.cost} | Compliance {file.compliance}
                         </p>
                       </div>
                       <div className="rounded-md bg-slate-50 p-3 dark:bg-slate-900 sm:col-span-2">
@@ -450,7 +513,8 @@ export default function ResultsPage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -460,6 +524,7 @@ export default function ResultsPage() {
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
+              <TabsTrigger value="reliability">Reliability</TabsTrigger>
               <TabsTrigger value="cost">Cost</TabsTrigger>
               <TabsTrigger value="compliance">Compliance</TabsTrigger>
             </TabsList>
@@ -481,6 +546,17 @@ export default function ResultsPage() {
                   Security Issues
                 </h3>
                 {filteredIssues("security").map((issue) => (
+                  <IssueCard key={issue.id} issue={issue} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="reliability">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-slate-900 dark:text-white">
+                  Reliability Issues
+                </h3>
+                {filteredIssues("reliability").map((issue) => (
                   <IssueCard key={issue.id} issue={issue} />
                 ))}
               </div>

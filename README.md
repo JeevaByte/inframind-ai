@@ -10,7 +10,7 @@
 
 ## What is InfraMind AI?
 
-InfraMind AI lets engineers describe infrastructure changes in plain language. An LLM-powered agent interprets the request, plans the required cloud operations, presents a structured approval summary, and — once the engineer confirms — executes the changes safely across AWS, GCP, Azure, and more.
+InfraMind AI is an AI-powered infrastructure review platform for Terraform, Kubernetes, CloudFormation, Dockerfiles, and GitHub Actions. It lets engineers upload infrastructure code, runs structured AI analysis, and returns security, reliability, cost, and best-practice findings with deployment-readiness guidance.
 
 ---
 
@@ -47,6 +47,7 @@ inframind-ai/
 | Language | TypeScript 5 (strict) |
 | Package manager | pnpm 9 workspaces |
 | API server | Fastify 5 |
+| AI analysis backend | FastAPI + OpenAI |
 | Web frontend | Next.js 15 (App Router) |
 | Validation | Zod |
 | Testing | Vitest |
@@ -57,7 +58,7 @@ inframind-ai/
 
 ## Quick start
 
-**Prerequisites:** Node.js ≥ 20, pnpm ≥ 9, Docker ≥ 24
+**Prerequisites:** Node.js ≥ 20, pnpm ≥ 9, Python ≥ 3.11, Docker optional
 
 ```bash
 # Install dependencies
@@ -65,26 +66,53 @@ pnpm install
 
 # Copy environment template
 cp .env.example .env
-# → edit .env and add DATABASE_URL, JWT_SECRET, etc.
+# → edit .env and add OPENAI_API_KEY and other values as needed
 
-# Start Postgres + Redis
-docker compose up postgres redis -d
+# Start the web app
+pnpm --filter @inframind/web dev
 
-# Run all apps in dev mode
-pnpm dev
+# Start the Fastify app (optional)
+pnpm --filter @inframind/api dev
+
+# Start the AI analysis backend
+cd backend
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
 | App | URL |
 |---|---|
 | Web | http://localhost:3000 |
 | API | http://localhost:3001 |
+| AI analysis backend | http://localhost:8000 |
 | API docs | http://localhost:3001/documentation |
+| AI backend docs | http://localhost:8000/docs |
+
+## AI analysis flow
+
+The Phase 2 MVP implements a real AI analysis pipeline:
+
+1. Upload infrastructure files in the web app.
+2. The Python backend detects the file type and extracts structured infrastructure context.
+3. Parsed context is combined with modular prompts and sent to OpenAI.
+4. The backend normalizes the JSON response into findings, scores, deployment readiness, architecture summary, and recommendations.
+5. The frontend renders the AI review with severity charts, category tabs, readiness, score breakdowns, and PDF export.
+
+If `OPENAI_API_KEY` is not configured or the model call fails, the backend falls back to a heuristic parser-backed analysis so the demo still works.
+
+## Demo samples
+
+Review-ready infrastructure samples live in [samples](./samples) and include intentionally risky Terraform, Kubernetes, Dockerfile, CloudFormation, and GitHub Actions examples for a stronger AI demo.
 
 ---
 
 ## Documentation
 
 - [Architecture overview](docs/ARCHITECTURE.md)
+- [AI setup guide](docs/AI_SETUP.md)
 - [Coding standards](docs/CODING_STANDARDS.md)
 - [Contributing guide](CONTRIBUTING.md)
 - [ADRs](docs/adr/)

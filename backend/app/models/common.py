@@ -17,12 +17,14 @@ class InfraFileType(str, Enum):
     CLOUDFORMATION = "cloudformation"
     KUBERNETES = "kubernetes"
     DOCKERFILE = "dockerfile"
+    GITHUB_ACTIONS = "github_actions"
     ANSIBLE = "ansible"
     UNKNOWN = "unknown"
 
 
 class AnalysisType(str, Enum):
     SECURITY = "security"
+    RELIABILITY = "reliability"
     COST = "cost"
     COMPLIANCE = "compliance"
     FULL = "full"
@@ -34,6 +36,13 @@ class Severity(str, Enum):
     MEDIUM = "medium"
     LOW = "low"
     INFO = "info"
+
+
+class FindingCategory(str, Enum):
+    SECURITY = "security"
+    RELIABILITY = "reliability"
+    COST = "cost"
+    COMPLIANCE = "compliance"
 
 
 class AnalysisStatus(str, Enum):
@@ -78,6 +87,7 @@ class Finding(BaseModel):
     id: str
     rule_id: str
     title: str
+    category: FindingCategory = FindingCategory.COMPLIANCE
     description: str
     severity: Severity
     resource: Optional[str] = None
@@ -116,6 +126,13 @@ class AnalysisResult(BaseModel):
     findings: List[Finding] = Field(default_factory=list)
     summary: Optional[str] = None
     score: Optional[float] = Field(default=None, ge=0, le=100)
+    security_score: Optional[float] = Field(default=None, ge=0, le=100)
+    reliability_score: Optional[float] = Field(default=None, ge=0, le=100)
+    cost_optimization_score: Optional[float] = Field(default=None, ge=0, le=100)
+    compliance_score: Optional[float] = Field(default=None, ge=0, le=100)
+    deployment_readiness: Optional[str] = None
+    architecture_summary: Optional[str] = None
+    top_recommendations: List[str] = Field(default_factory=list)
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     error_message: Optional[str] = None

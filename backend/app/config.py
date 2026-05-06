@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import List
+from typing import List, Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -25,10 +25,13 @@ class Settings(BaseSettings):
     max_file_size_mb: int = 50
     allowed_extensions: str = "tf,tfvars,json,yaml,yml,hcl,template,dockerfile"
 
-    # Mock AI service
-    ai_service_url: str = "http://localhost:9000"
-    ai_service_timeout_seconds: int = 30
-    use_mock_ai: bool = True
+    # AI analysis
+    openai_api_key: Optional[str] = None
+    openai_model: str = "gpt-4.1"
+    openai_timeout_seconds: int = 60
+    openai_max_retries: int = 2
+    openai_max_excerpt_chars: int = 12000
+    use_mock_ai: bool = False
 
     # CORS
     cors_origins: str = "http://localhost:3000,http://localhost:5173"

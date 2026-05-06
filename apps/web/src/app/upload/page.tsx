@@ -31,13 +31,13 @@ export default function UploadPage() {
     setCompletionMessage(null)
 
     try {
-      setProgressLabel("Uploading files...")
+      setProgressLabel("Uploading infrastructure context...")
       setStep1Progress(35)
 
       const uploadedFiles = await uploadFiles(selectedFiles)
       setStep1Progress(100)
 
-      setProgressLabel("Running analysis...")
+      setProgressLabel("AI analyzing infrastructure...")
       setStep2Progress(45)
 
       const analysisResponse = await startBulkAnalysis(
@@ -50,7 +50,7 @@ export default function UploadPage() {
 
       setStep2Progress(100)
       setStep3Progress(100)
-      setCompletionMessage("✓ Analysis complete! Opening results...")
+      setCompletionMessage("✓ AI analysis complete! Opening results...")
 
       const analysisIds = analysisResponse.submitted.map((item) => item.analysis_id)
       router.push(
@@ -79,7 +79,7 @@ export default function UploadPage() {
               Upload Infrastructure Files
             </h1>
             <p className="text-slate-600 dark:text-slate-400">
-              Upload your configuration files to get started with analysis
+              Upload infrastructure files and let the AI reviewer score risks, readiness, and architecture quality.
             </p>
           </div>
 
@@ -103,12 +103,12 @@ export default function UploadPage() {
                     </p>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
                       {selectedFiles.length > 0
-                        ? `${selectedFiles.length} file${selectedFiles.length === 1 ? "" : "s"} selected for full analysis.`
-                        : "Upload one or more supported files to start analysis."}
+                        ? `${selectedFiles.length} file${selectedFiles.length === 1 ? "" : "s"} selected for AI-powered review.`
+                        : "Upload one or more supported files to start AI analysis."}
                     </p>
                   </div>
                   <Button onClick={handleAnalyze} disabled={selectedFiles.length === 0 || isSubmitting}>
-                    {isSubmitting ? "Analyzing..." : "Analyze Files"}
+                    {isSubmitting ? "AI Analyzing..." : "Analyze with AI"}
                   </Button>
                 </div>
               </div>
@@ -135,6 +135,14 @@ export default function UploadPage() {
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-slate-400" />
                     <span>Kubernetes (.yaml, .yml)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-slate-400" />
+                    <span>Dockerfile</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-slate-400" />
+                    <span>GitHub Actions (.yaml, .yml)</span>
                   </div>
                 </CardContent>
               </Card>
