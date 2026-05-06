@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 from uuid import UUID
@@ -55,7 +55,7 @@ class APIResponse(BaseModel, Generic[DataT]):
     data: Optional[DataT] = None
     message: Optional[str] = None
     errors: Optional[List[str]] = None
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     model_config = {"arbitrary_types_allowed": True}
 

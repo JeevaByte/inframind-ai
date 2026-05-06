@@ -5,7 +5,7 @@ import json
 import logging
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -84,7 +84,7 @@ class FileService:
             file_type=file_type,
             size_bytes=len(content),
             content_type=upload.content_type or "application/octet-stream",
-            uploaded_at=datetime.utcnow(),
+            uploaded_at=datetime.now(timezone.utc),
             checksum=checksum,
         )
         _file_registry[str(file_id)] = record

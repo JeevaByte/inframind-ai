@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from app.config import Settings, get_settings
@@ -33,7 +33,7 @@ class AnalysisService:
             raise FileNotFoundError(f"File {file_id} not found.")
 
         analysis_id = uuid.uuid4()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         result = AnalysisResult(
             analysis_id=analysis_id,
@@ -57,12 +57,12 @@ class AnalysisService:
             result.summary = summary
             result.score = score
             result.status = AnalysisStatus.COMPLETED
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
         except Exception as exc:
             logger.exception("Analysis %s failed: %s", analysis_id, exc)
             result.status = AnalysisStatus.FAILED
             result.error_message = str(exc)
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
 
         _analysis_store[str(analysis_id)] = result
         logger.info(

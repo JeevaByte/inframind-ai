@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # File storage
     upload_dir: str = "./uploads"
     max_file_size_mb: int = 50
-    allowed_extensions: str = "tf,tfvars,json,yaml,yml,hcl,template,dockerfile,Dockerfile"
+    allowed_extensions: str = "tf,tfvars,json,yaml,yml,hcl,template,dockerfile"
 
     # Mock AI service
     ai_service_url: str = "http://localhost:9000"
