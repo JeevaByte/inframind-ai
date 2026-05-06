@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { MarketingFooter } from "@/components/layout/marketing-footer"
 
 const features = [
   {
@@ -300,88 +301,7 @@ export default function Home() {
 
       <Separator />
 
-      {/* Footer */}
-      <footer className="bg-slate-50 dark:bg-slate-900 py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="font-bold text-slate-900 dark:text-white mb-4">
-                InfraMind AI
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                AI-powered infrastructure analysis for DevOps and Cloud teams.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">
-                Product
-              </h4>
-              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <li>
-                  <Link href="#" className="hover:text-slate-900 dark:hover:text-white">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-slate-900 dark:hover:text-white">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-slate-900 dark:hover:text-white">
-                    Documentation
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">
-                Company
-              </h4>
-              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <li>
-                  <Link href="#" className="hover:text-slate-900 dark:hover:text-white">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-slate-900 dark:hover:text-white">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-slate-900 dark:hover:text-white">
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">
-                Legal
-              </h4>
-              <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                <li>
-                  <Link href="#" className="hover:text-slate-900 dark:hover:text-white">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-slate-900 dark:hover:text-white">
-                    Terms
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="mt-8 pt-8 text-center text-sm text-slate-600 dark:text-slate-400">
-            <p>&copy; {new Date().getFullYear()} InfraMind AI. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <MarketingFooter />
     </div>
   )
 }

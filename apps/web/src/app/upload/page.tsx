@@ -1,12 +1,74 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Dropzone } from "@/components/upload/dropzone"
 import { Progress } from "@/components/ui/progress"
 import { CheckCircle2, FileText, Zap } from "lucide-react"
+import { startBulkAnalysis, uploadFiles } from "@/lib/backend-api"
 
 export default function UploadPage() {
+  const router = useRouter()
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [step1Progress, setStep1Progress] = useState(0)
+  const [step2Progress, setStep2Progress] = useState(0)
+  const [step3Progress, setStep3Progress] = useState(0)
+  const [progressLabel, setProgressLabel] = useState<string | null>(null)
+  const [completionMessage, setCompletionMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const handleAnalyze = async () => {
+    if (selectedFiles.length === 0 || isSubmitting) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setErrorMessage(null)
+    setCompletionMessage(null)
+
+    try {
+      setProgressLabel("Uploading files...")
+      setStep1Progress(35)
+
+      const uploadedFiles = await uploadFiles(selectedFiles)
+      setStep1Progress(100)
+
+      setProgressLabel("Running analysis...")
+      setStep2Progress(45)
+
+      const analysisResponse = await startBulkAnalysis(
+        uploadedFiles.map((file) => file.file_id)
+      )
+
+      if (analysisResponse.submitted.length === 0) {
+        throw new Error("Analysis did not return any results.")
+      }
+
+      setStep2Progress(100)
+      setStep3Progress(100)
+      setCompletionMessage("✓ Analysis complete! Opening results...")
+
+      const analysisIds = analysisResponse.submitted.map((item) => item.analysis_id)
+      router.push(
+        `/results/${analysisIds[0]}?analysisIds=${encodeURIComponent(analysisIds.join(","))}`
+      )
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to analyze uploaded files."
+      )
+      setStep2Progress(0)
+      setStep3Progress(0)
+      setCompletionMessage(null)
+    } finally {
+      setProgressLabel(null)
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="flex">
       <Sidebar />
@@ -24,7 +86,32 @@ export default function UploadPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Upload Area */}
             <div className="lg:col-span-2">
-              <Dropzone />
+              <div className="space-y-6">
+                <Dropzone
+                  disabled={isSubmitting}
+                  onFilesChange={setSelectedFiles}
+                  progressValue={progressLabel ? (step2Progress > 0 ? step2Progress : step1Progress) : 0}
+                  progressLabel={progressLabel}
+                  completionMessage={completionMessage}
+                  errorMessage={errorMessage}
+                />
+
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                      Ready to analyze
+                    </p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {selectedFiles.length > 0
+                        ? `${selectedFiles.length} file${selectedFiles.length === 1 ? "" : "s"} selected for full analysis.`
+                        : "Upload one or more supported files to start analysis."}
+                    </p>
+                  </div>
+                  <Button onClick={handleAnalyze} disabled={selectedFiles.length === 0 || isSubmitting}>
+                    {isSubmitting ? "Analyzing..." : "Analyze Files"}
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Info Cards */}
@@ -62,15 +149,15 @@ export default function UploadPage() {
                 <CardContent className="space-y-3">
                   <div>
                     <p className="text-sm font-semibold mb-1">Step 1: Upload</p>
-                    <Progress value={100} />
+                    <Progress value={step1Progress || (selectedFiles.length > 0 ? 100 : 0)} />
                   </div>
                   <div>
                     <p className="text-sm font-semibold mb-1">Step 2: Analyze</p>
-                    <Progress value={0} />
+                    <Progress value={step2Progress} />
                   </div>
                   <div>
                     <p className="text-sm font-semibold mb-1">Step 3: Results</p>
-                    <Progress value={0} />
+                    <Progress value={step3Progress} />
                   </div>
                 </CardContent>
               </Card>

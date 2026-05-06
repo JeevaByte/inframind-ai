@@ -1,28 +1,36 @@
 "use client"
 
 import { Upload, File } from "lucide-react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 
-export function Dropzone() {
+interface DropzoneProps {
+  onFilesChange?: (files: File[]) => void
+  progressValue?: number
+  progressLabel?: string | null
+  completionMessage?: string | null
+  errorMessage?: string | null
+  disabled?: boolean
+}
+
+export function Dropzone({
+  onFilesChange,
+  progressValue = 0,
+  progressLabel,
+  completionMessage,
+  errorMessage,
+  disabled = false,
+}: DropzoneProps) {
   const [isDragActive, setIsDragActive] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-
-  // Cleanup interval on unmount
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
-  }, [])
 
   const handleDragEnter = (e: React.DragEvent) => {
+    if (disabled) {
+      return
+    }
     e.preventDefault()
     e.stopPropagation()
     setIsDragActive(true)
@@ -35,6 +43,9 @@ export function Dropzone() {
   }
 
   const handleDrop = (e: React.DragEvent) => {
+    if (disabled) {
+      return
+    }
     e.preventDefault()
     e.stopPropagation()
     setIsDragActive(false)
@@ -59,30 +70,13 @@ export function Dropzone() {
         !existingFileKeys.has(`${file.name}-${file.size}-${file.lastModified}`)
     )
 
-    setUploadedFiles((prev) => [...prev, ...newUniqueFiles])
-
-    if (newUniqueFiles.length > 0) {
-      simulateUpload()
-    }
-  }
-
-  const simulateUpload = () => {
-    let progress = 0
-
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
+    if (newUniqueFiles.length === 0) {
+      return
     }
 
-    intervalRef.current = setInterval(() => {
-      progress += Math.random() * 30
-      if (progress >= 100) {
-        progress = 100
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current)
-        }
-      }
-      setUploadProgress(progress)
-    }, 300)
+    const nextFiles = [...uploadedFiles, ...newUniqueFiles]
+    setUploadedFiles(nextFiles)
+    onFilesChange?.(nextFiles)
   }
 
   return (
@@ -90,6 +84,7 @@ export function Dropzone() {
       <Card
         className={cn(
           "border-2 border-dashed transition-colors cursor-pointer",
+          disabled && "cursor-not-allowed opacity-70",
           isDragActive
             ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
             : "border-slate-300 dark:border-slate-700"
@@ -97,8 +92,11 @@ export function Dropzone() {
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => !disabled && inputRef.current?.click()}
         onKeyDown={(e) => {
+          if (disabled) {
+            return
+          }
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault()
             inputRef.current?.click()
@@ -120,6 +118,7 @@ export function Dropzone() {
             type="file"
             multiple
             className="hidden"
+            disabled={disabled}
             onChange={(e) => handleFiles(Array.from(e.target.files || []))}
             accept=".tf,.yaml,.yml,.json"
             aria-label="Upload infrastructure configuration files"
@@ -154,18 +153,24 @@ export function Dropzone() {
             </div>
           </div>
 
-          {uploadProgress > 0 && uploadProgress < 100 && (
+          {progressValue > 0 && progressValue < 100 && progressLabel && (
             <div className="space-y-2">
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                Uploading... {Math.round(uploadProgress)}%
+                {progressLabel} {Math.round(progressValue)}%
               </p>
-              <Progress value={uploadProgress} role="progressbar" aria-valuenow={uploadProgress} aria-valuemin={0} aria-valuemax={100} />
+              <Progress value={progressValue} role="progressbar" aria-valuenow={progressValue} aria-valuemin={0} aria-valuemax={100} />
             </div>
           )}
 
-          {uploadProgress === 100 && (
+          {completionMessage && (
             <p className="text-sm text-green-600 dark:text-green-400" role="status">
-              ✓ Upload complete! Ready to analyze.
+              {completionMessage}
+            </p>
+          )}
+
+          {errorMessage && (
+            <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+              {errorMessage}
             </p>
           )}
         </div>

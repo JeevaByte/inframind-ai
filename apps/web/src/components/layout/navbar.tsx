@@ -29,7 +29,7 @@ export function Navbar() {
             <Link href="/upload" className="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
               Upload
             </Link>
-            <Link href="#features" className="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+            <Link href="/#features" className="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
               Features
             </Link>
           </div>
@@ -60,7 +60,7 @@ export function Navbar() {
             <Link href="/upload" className="block text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
               Upload
             </Link>
-            <Link href="#features" className="block text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+            <Link href="/#features" className="block text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
               Features
             </Link>
             <Button className="w-full">Sign In</Button>
