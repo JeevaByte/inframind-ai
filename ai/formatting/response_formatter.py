@@ -12,6 +12,7 @@ This module is responsible for:
 from __future__ import annotations
 
 import json
+import logging
 import re
 import uuid
 from datetime import datetime
@@ -25,6 +26,8 @@ from ai.models.schemas import (
     RemediationPriority,
     RiskScore,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -169,8 +172,9 @@ class ResponseParser:
         for raw_finding in data.get("findings", []):
             try:
                 findings.append(_parse_finding(raw_finding, resource_id))
-            except Exception as exc:  # noqa: BLE001
+            except (KeyError, ValueError, TypeError) as exc:
                 # Skip malformed findings rather than failing entirely
+                logger.debug("Skipping malformed finding: %s", exc)
                 findings.append(
                     Finding(
                         id=str(uuid.uuid4()),
@@ -186,8 +190,8 @@ class ResponseParser:
         for raw_rec in data.get("recommendations", []):
             try:
                 recommendations.append(_parse_recommendation(raw_rec))
-            except Exception:  # noqa: BLE001
-                pass
+            except (KeyError, ValueError, TypeError) as exc:
+                logger.debug("Skipping malformed recommendation: %s", exc)
 
         return AnalysisResult(
             request_id=request_id,

@@ -162,7 +162,7 @@ class MockProvider:
     Returns a minimal valid JSON response with zero findings.
     """
 
-    def complete(self, prompt: str, **kwargs: Any) -> str:  # noqa: ARG002
+    def complete(self, prompt: str, **kwargs: Any) -> str:  # noqa: ARG002  # prompt intentionally ignored by mock
         return (
             '{"summary": "Mock analysis complete. No findings detected.", '
             '"findings": [], "recommendations": []}'

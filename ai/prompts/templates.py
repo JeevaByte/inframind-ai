@@ -96,7 +96,7 @@ class PromptTemplate:
         so that literal JSON braces such as ``{"key": "value"}`` are preserved.
         Unknown placeholders are left unchanged.
         """
-        def replacer(match: re.Match) -> str:  # type: ignore[type-arg]
+        def replacer(match: re.Match[str]) -> str:
             key = match.group(1)
             return str(variables[key]) if key in variables else match.group(0)
 
@@ -114,7 +114,7 @@ class PromptTemplate:
             re.DOTALL,
         )
 
-        def replace_block(match: re.Match) -> str:  # type: ignore[type-arg]
+        def replace_block(match: re.Match[str]) -> str:
             var_name = match.group(1)
             block_content = match.group(2)
             return block_content if variables.get(var_name) else ""

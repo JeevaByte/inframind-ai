@@ -818,6 +818,27 @@ class TestRecommendationEngine:
 # ---------------------------------------------------------------------------
 
 
+class _DuplicateResponseProvider:
+    """Mock LLM provider that returns a finding duplicating a pre-screen result."""
+
+    def __init__(self, resource_id: str) -> None:
+        self._resource_id = resource_id
+
+    def complete(self, prompt: str, **kwargs: Any) -> str:  # noqa: ARG002
+        return json.dumps({
+            "summary": "test",
+            "findings": [{
+                "id": "F-DUP",
+                "resource_id": self._resource_id,
+                "title": "Storage Resource Publicly Accessible",  # same as pre-screen
+                "description": "Duplicate.",
+                "severity": "high",
+                "risk_score": {"base_score": 8.0},
+            }],
+            "recommendations": [],
+        })
+
+
 class TestAIOrchestrator:
     def test_analyse_returns_analysis_result(self, s3_resource: InfraResource) -> None:
         request = AnalysisRequest(
@@ -920,26 +941,11 @@ class TestAIOrchestrator:
         self, s3_resource: InfraResource
     ) -> None:
         """Mock provider returns a finding that duplicates a pre-screen finding."""
-        duplicate_json = json.dumps({
-            "summary": "test",
-            "findings": [{
-                "id": "F-DUP",
-                "resource_id": s3_resource.id,
-                "title": "Storage Resource Publicly Accessible",  # same as pre-screen
-                "description": "Duplicate.",
-                "severity": "high",
-                "risk_score": {"base_score": 8.0},
-            }],
-            "recommendations": [],
-        })
-
-        class DuplicateProvider:
-            def complete(self, prompt: str, **kwargs: Any) -> str:
-                return duplicate_json
-
         request = AnalysisRequest(request_id="req-dup", resources=[s3_resource])
         config = OrchestratorConfig(include_pre_screen=True)
-        orchestrator = AIOrchestrator(provider=DuplicateProvider(), config=config)
+        orchestrator = AIOrchestrator(
+            provider=_DuplicateResponseProvider(s3_resource.id), config=config
+        )
         result = orchestrator.analyse(request)
 
         titles = [f.title for f in result.findings]
