@@ -32,8 +32,8 @@ inframind-ai/
 |---|---|---|
 | Language | TypeScript 5 (strict) | End-to-end type safety |
 | Package manager | pnpm 9 + workspaces | Fast, disk-efficient monorepo |
-| API server | Fastify 4 | High throughput, schema-first |
-| Web frontend | Next.js 14 (App Router) | SSR, RSC, file-based routing |
+| API server | Fastify 5 | High throughput, schema-first |
+| Web frontend | Next.js 15 (App Router) | SSR, RSC, file-based routing |
 | Validation | Zod | Runtime schema validation across layers |
 | Auth | JWT (via @fastify/jwt) | Stateless, easy horizontal scale |
 | AI integration | OpenAI / Anthropic (pluggable via `AIProvider` interface) | Swap models without touching business logic |

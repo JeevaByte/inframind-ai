@@ -10,7 +10,7 @@ We need an HTTP and WebSocket server for the InfraMind AI backend. Candidates co
 
 ## Decision
 
-Use **Fastify 4**:
+Use **Fastify 5**:
 - Highest raw throughput among Node.js frameworks (benchmark-proven).
 - Schema-first request validation with JSON Schema — maps naturally to Zod.
 - Official plugins for CORS, Helmet, JWT, rate limiting, Swagger.

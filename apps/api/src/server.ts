@@ -10,7 +10,10 @@ export const app = Fastify({
   logger: {
     level: env.LOG_LEVEL,
     ...(env.NODE_ENV === "development" && {
-      transport: { target: "pino-pretty", options: { colorize: true } },
+      transport: {
+        target: "pino-pretty",
+        options: { colorize: true },
+      },
     }),
   },
 });
@@ -27,7 +30,9 @@ await app.register(rateLimit, { max: 100, timeWindow: "1 minute" });
 // Health check
 // ---------------------------------------------------------------------------
 
-app.get("/health", async () => ({ status: "ok", version: process.env["npm_package_version"] }));
+app.get("/health", async (_request, reply) => {
+  await reply.send({ status: "ok", version: process.env["npm_package_version"] });
+});
 
 // ---------------------------------------------------------------------------
 // Boot

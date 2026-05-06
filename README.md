@@ -46,8 +46,8 @@ inframind-ai/
 |---|---|
 | Language | TypeScript 5 (strict) |
 | Package manager | pnpm 9 workspaces |
-| API server | Fastify 4 |
-| Web frontend | Next.js 14 (App Router) |
+| API server | Fastify 5 |
+| Web frontend | Next.js 15 (App Router) |
 | Validation | Zod |
 | Testing | Vitest |
 | Containerisation | Docker + Docker Compose |
