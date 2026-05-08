@@ -55,6 +55,8 @@ jobs:
   cli-python:
     name: CLI (Python)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: cli
