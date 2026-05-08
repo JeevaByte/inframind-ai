@@ -18,36 +18,19 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  api:
+  backend:
     build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+      context: ./backend
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     ports:
-      - "3001:3001"
+      - "8000:8000"
     env_file:
-      - .env
+      - backend/.env
     environment:
-      DATABASE_URL: postgresql://inframind:inframind@postgres:5432/inframind_dev
-      REDIS_URL: redis://redis:6379
+      CORS_ORIGINS: http://localhost:3000,http://web:3000
 
   web:
     build:
@@ -55,14 +38,11 @@ services:
       dockerfile: apps/web/Dockerfile
     restart: unless-stopped
     depends_on:
-      - api
+      - backend
     ports:
       - "3000:3000"
-    env_file:
-      - .env
     environment:
-      NEXT_PUBLIC_API_URL: http://api:3001
+      NEXT_PUBLIC_ANALYSIS_API_URL: http://backend:8000
 
 volumes:
   postgres_data:
-  redis_data:
