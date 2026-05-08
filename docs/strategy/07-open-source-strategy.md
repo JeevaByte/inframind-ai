@@ -11,7 +11,7 @@
 2. Establish infralint as the default IaC linter for cloud-native teams.
 3. Create a sustainable commercial layer without fragmenting the open-source core.
 
-## Licence Choice: Apache 2.0
+## License Choice: Apache 2.0
 
 Apache 2.0 was chosen because it:
 
@@ -36,7 +36,7 @@ Apache 2.0 was chosen because it:
 
 ## Success Metrics
 
-- GitHub stars growth (target: 1 000 in 6 months post-launch).
+- GitHub stars growth (target: 1,000 in 6 months post-launch).
 - Number of external contributors per release cycle.
 - Community forum response time (target: < 24 hours).
 - Enterprise pipeline conversion rate from open-source users.
