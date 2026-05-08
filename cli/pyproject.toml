@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "infralint"
+version = "0.1.0"
+description = "CLI tool for scanning infrastructure-as-code files"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1",
+    "pyyaml>=6.0",
+    "openai>=1.0; extra == 'openai'",
+    "httpx>=0.25; extra == 'ollama'",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.0"]
+ollama = ["httpx>=0.25"]
+dev = ["pytest>=8.0", "pytest-mock>=3.14"]
+
+[project.scripts]
+infralint = "infralint.cli:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/infralint"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
