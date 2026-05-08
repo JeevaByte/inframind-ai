@@ -4,8 +4,18 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-
 _GITHUB_ACTIONS_RE = re.compile(r"\.github[\\/]workflows[\\/].+\.ya?ml$", re.IGNORECASE)
+
+_KUBERNETES_KEYWORDS = (
+    "kubernetes",
+    "k8s",
+    "deploy",
+    "service",
+    "ingress",
+    "pod",
+    "statefulset",
+    "daemonset",
+)
 
 
 def detect(path: Path) -> str:
@@ -24,7 +34,7 @@ def detect(path: Path) -> str:
 
     if suffix in (".yaml", ".yml"):
         # Heuristic: look for Kubernetes / CloudFormation markers in the name
-        if any(k in name for k in ("kubernetes", "k8s", "deploy", "service", "ingress", "pod", "statefulset", "daemonset")):
+        if any(k in name for k in _KUBERNETES_KEYWORDS):
             return "kubernetes"
         return "yaml"
 

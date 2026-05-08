@@ -83,10 +83,11 @@ class AzureOpenAIProvider:
             return []
 
         try:
+            api_version = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-01")
             client = AzureOpenAI(
                 api_key=self.api_key,
                 azure_endpoint=self.endpoint,
-                api_version="2024-02-01",
+                api_version=api_version,
             )
             response = client.chat.completions.create(
                 model=self.deployment,
