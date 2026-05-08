@@ -10,7 +10,22 @@ import { Button } from "@/components/ui/button"
 import { SummaryChart } from "@/components/results/summary-chart"
 import { IssueCard } from "@/components/results/issue-card"
 import { Download, Share2 } from "lucide-react"
-import { getAnalysisResult, getFileMetadata, type BackendAnalysisResult, type BackendFinding } from "@/lib/backend-api"
+import { getFileMetadata, type BackendAnalysisResult, type BackendFinding } from "@/lib/backend-api"
+
+async function fetchAnalysisResult(analysisId: string): Promise<BackendAnalysisResult> {
+  const res = await fetch(`/api/analysis/${analysisId}`, { cache: "no-store" })
+  if (!res.ok) {
+    let message = "Failed to load analysis result"
+    try {
+      const errPayload = (await res.json()) as { error?: string }
+      if (errPayload.error) message = errPayload.error
+    } catch {
+      // non-JSON error body; keep default message
+    }
+    throw new Error(message)
+  }
+  return res.json() as Promise<BackendAnalysisResult>
+}
 
 interface IssueViewModel {
   id: string
@@ -107,7 +122,7 @@ export default function ResultsPage() {
       setErrorMessage(null)
 
       try {
-        const analyses = await Promise.all(analysisIds.map((analysisId) => getAnalysisResult(analysisId)))
+        const analyses = await Promise.all(analysisIds.map((analysisId) => fetchAnalysisResult(analysisId)))
         const uniqueFileIds = [...new Set(analyses.map((analysis) => analysis.file_id))]
         const fileMetadata = await Promise.all(uniqueFileIds.map((fileId) => getFileMetadata(fileId)))
         const fileNameById = new Map(fileMetadata.map((file) => [file.file_id, file.original_filename]))
