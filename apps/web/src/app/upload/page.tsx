@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Dropzone } from "@/components/upload/dropzone"
 import { Progress } from "@/components/ui/progress"
 import { CheckCircle2, FileText, Zap } from "lucide-react"
-import { startBulkAnalysis, uploadFiles } from "@/lib/backend-api"
 
 export default function UploadPage() {
   const router = useRouter()
@@ -34,17 +33,35 @@ export default function UploadPage() {
       setProgressLabel("Uploading infrastructure context...")
       setStep1Progress(35)
 
-      const uploadedFiles = await uploadFiles(selectedFiles)
-      setStep1Progress(100)
+      const formData = new FormData()
+      selectedFiles.forEach((file) => formData.append("files", file))
 
+      const res = await fetch("/api/analysis", {
+        method: "POST",
+        body: formData,
+      })
+
+      setStep1Progress(100)
       setProgressLabel("AI analyzing infrastructure...")
       setStep2Progress(45)
 
-      const analysisResponse = await startBulkAnalysis(
-        uploadedFiles.map((file) => file.file_id)
-      )
+      if (!res.ok) {
+        let message = "Failed to analyze uploaded files."
+        try {
+          const errPayload = (await res.json()) as { error?: string }
+          if (errPayload.error) message = errPayload.error
+        } catch {
+          // non-JSON error body; keep default message
+        }
+        throw new Error(message)
+      }
 
-      if (analysisResponse.submitted.length === 0) {
+      const payload = (await res.json()) as {
+        submitted: Array<{ analysis_id: string; file_id: string; status: string; message: string }>
+        failed: Array<{ file_id: string; error: string }>
+      }
+
+      if (!payload.submitted?.length) {
         throw new Error("Analysis did not return any results.")
       }
 
@@ -52,7 +69,7 @@ export default function UploadPage() {
       setStep3Progress(100)
       setCompletionMessage("✓ AI analysis complete! Opening results...")
 
-      const analysisIds = analysisResponse.submitted.map((item) => item.analysis_id)
+      const analysisIds = payload.submitted.map((item) => item.analysis_id)
       router.push(
         `/results/${analysisIds[0]}?analysisIds=${encodeURIComponent(analysisIds.join(","))}`
       )
