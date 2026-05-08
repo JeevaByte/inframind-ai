@@ -35,7 +35,7 @@ def _collect_files(paths: List[Path]) -> List[Path]:
             # Also collect Dockerfile variants by name
             files.extend(p.rglob("Dockerfile*"))
     # Deduplicate while preserving order
-    seen: set = set()
+    seen: set[Path] = set()
     result: List[Path] = []
     for f in files:
         key = f.resolve()
@@ -88,7 +88,10 @@ def scan(
     all_files = _collect_files(paths)
 
     # --- Load .infralint.yaml config ---
-    cfg = load_config(paths[0] if paths else Path.cwd())
+    start = Path.cwd()
+    if paths:
+        start = paths[0].parent if paths[0].is_file() else paths[0]
+    cfg = load_config(start)
 
     if cfg.exclude:
         def _excluded(p: Path) -> bool:

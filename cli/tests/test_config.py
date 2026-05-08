@@ -13,7 +13,13 @@ def test_no_config_returns_defaults(tmp_path: Path):
 
 def test_loads_yaml(tmp_path: Path):
     (tmp_path / ".infralint.yaml").write_text(
-        "exclude:\n  - 'samples/**'\ndisable_rules:\n  - INFRALINT-DOCKER-001\nfail_on: high\nllm:\n  provider: ollama\n"
+        "exclude:\n"
+        "  - 'samples/**'\n"
+        "disable_rules:\n"
+        "  - INFRALINT-DOCKER-001\n"
+        "fail_on: high\n"
+        "llm:\n"
+        "  provider: ollama\n"
     )
     cfg = load_config(tmp_path)
     assert cfg.exclude == ["samples/**"]
