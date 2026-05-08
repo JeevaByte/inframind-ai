@@ -1,0 +1,8 @@
+- id: infralint
+  name: infralint
+  description: AI-powered infrastructure-as-code review
+  entry: infralint scan
+  language: python
+  pass_filenames: true
+  types_or: [yaml, terraform, dockerfile, json]
+  require_serial: false
