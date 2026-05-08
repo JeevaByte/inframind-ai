@@ -11,8 +11,8 @@ InfraMind AI is an intelligent infrastructure automation platform that combines 
 ```
 inframind-ai/
 ├── apps/
-│   ├── api/          # Fastify REST + WebSocket API server (Node.js)
-│   └── web/          # Next.js 14 web application (App Router)
+│   └── web/          # Next.js 15 web application (App Router)
+├── backend/          # FastAPI AI analysis backend (Python 3.12)
 ├── packages/
 │   ├── shared/       # Shared TypeScript types, interfaces, utilities
 │   └── config/       # Zod-validated environment config helpers
@@ -30,18 +30,14 @@ inframind-ai/
 
 | Layer | Technology | Rationale |
 |---|---|---|
-| Language | TypeScript 5 (strict) | End-to-end type safety |
+| Language | TypeScript 5 (strict) / Python 3.12 | End-to-end type safety; Python for AI pipeline |
 | Package manager | pnpm 9 + workspaces | Fast, disk-efficient monorepo |
-| API server | Fastify 5 | High throughput, schema-first |
+| AI analysis backend | FastAPI + OpenAI | Async Python, auto-generated OpenAPI docs |
 | Web frontend | Next.js 15 (App Router) | SSR, RSC, file-based routing |
-| Validation | Zod | Runtime schema validation across layers |
-| Auth | JWT (via @fastify/jwt) | Stateless, easy horizontal scale |
-| AI integration | OpenAI / Anthropic (pluggable via `AIProvider` interface) | Swap models without touching business logic |
-| Database | PostgreSQL (via Prisma ORM) | Relational, ACID, great TypeScript support |
-| Cache / queue | Redis | Session cache, job queue, pub-sub |
+| Validation | Zod / Pydantic | Runtime schema validation across layers |
 | Containerisation | Docker + Docker Compose | Consistent local and CI environments |
 | CI/CD | GitHub Actions | Native, fast, free for OSS |
-| Testing | Vitest | Fast, ESM-native, Jest-compatible API |
+| Testing | Vitest / pytest | Fast unit and integration tests |
 
 ---
 
@@ -68,14 +64,15 @@ Structured JSON logging (Pino), OpenTelemetry traces, and health-check endpoints
 
 ```
 User (Browser)
-    │  HTTPS / WebSocket
+    │  HTTPS
     ▼
-apps/web (Next.js)          ─── Server Actions / API routes ──▶  apps/api (Fastify)
-                                                                        │
-                                                            ┌───────────┼───────────┐
-                                                            ▼           ▼           ▼
-                                                       PostgreSQL    Redis     AI Provider
-                                                       (Prisma)   (BullMQ)  (OpenAI/Anthropic)
+apps/web (Next.js)
+    │  fetch (NEXT_PUBLIC_ANALYSIS_API_URL)
+    ▼
+backend/ (FastAPI)
+    │
+    ├── File storage (local disk / object store)
+    └── AI Provider (OpenAI)
 ```
 
 ---

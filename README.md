@@ -19,8 +19,8 @@ InfraMind AI is an AI-powered infrastructure review platform for Terraform, Kube
 ```
 inframind-ai/
 ├── apps/
-│   ├── api/          # Fastify 4 REST + WebSocket API (Node.js 20)
-│   └── web/          # Next.js 14 web application (App Router)
+│   └── web/          # Next.js 15 web application (App Router)
+├── backend/          # FastAPI AI analysis backend (Python 3.12)
 ├── packages/
 │   ├── shared/       # Shared TypeScript types, interfaces & utilities
 │   └── config/       # Zod-validated environment configuration helpers
@@ -44,13 +44,12 @@ inframind-ai/
 
 | Layer | Technology |
 |---|---|
-| Language | TypeScript 5 (strict) |
+| Language | TypeScript 5 (strict) / Python 3.12 |
 | Package manager | pnpm 9 workspaces |
-| API server | Fastify 5 |
 | AI analysis backend | FastAPI + OpenAI |
 | Web frontend | Next.js 15 (App Router) |
 | Validation | Zod |
-| Testing | Vitest |
+| Testing | Vitest / pytest |
 | Containerisation | Docker + Docker Compose |
 | CI/CD | GitHub Actions |
 
@@ -61,24 +60,22 @@ inframind-ai/
 **Prerequisites:** Node.js ≥ 20, pnpm ≥ 9, Python ≥ 3.11, Docker optional
 
 ```bash
-# Install dependencies
+# Install Node.js dependencies
 pnpm install
 
-# Copy environment template
+# Copy environment templates
 cp .env.example .env
-# → edit .env and add OPENAI_API_KEY and other values as needed
+cp apps/web/.env.local.example apps/web/.env.local
+cp backend/.env.example backend/.env
+# → edit the .env files and add OPENAI_API_KEY and other values as needed
 
 # Start the web app
 pnpm --filter @inframind/web dev
 
-# Start the Fastify app (optional)
-pnpm --filter @inframind/api dev
-
-# Start the AI analysis backend
+# Start the FastAPI analysis backend
 cd backend
 python -m venv .venv
-# Windows
-.venv\Scripts\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
@@ -86,9 +83,7 @@ uvicorn app.main:app --reload --port 8000
 | App | URL |
 |---|---|
 | Web | http://localhost:3000 |
-| API | http://localhost:3001 |
 | AI analysis backend | http://localhost:8000 |
-| API docs | http://localhost:3001/documentation |
 | AI backend docs | http://localhost:8000/docs |
 
 ## AI analysis flow
