@@ -1,0 +1,1 @@
+"""infralint — infrastructure linting CLI."""

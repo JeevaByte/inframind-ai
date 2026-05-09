@@ -1,0 +1,10 @@
+pyproject.toml
+src/infralint/__init__.py
+src/infralint/cli.py
+src/infralint/config.py
+src/infralint.egg-info/PKG-INFO
+src/infralint.egg-info/SOURCES.txt
+src/infralint.egg-info/dependency_links.txt
+src/infralint.egg-info/requires.txt
+src/infralint.egg-info/top_level.txt
+tests/test_config.py

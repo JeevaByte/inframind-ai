@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Python CI job that runs ruff + pytest against the cli/ package.
+
 ### Changed
 
 - Strategy docs annotated with rename to infralint and Apache 2.0 release.
