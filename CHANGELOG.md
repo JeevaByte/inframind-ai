@@ -17,11 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Next.js API proxy routes (`/api/analysis` POST and `/api/analysis/[id]` GET) so the browser never calls FastAPI directly; `FASTAPI_URL` remains server-side only
 - Terraform infrastructure modules on AWS: IAM (Lambda execution role + least-privilege S3-read policy), S3 (versioned, AES-256-encrypted artifacts + lifecycle-managed logs buckets), Lambda (function + CloudWatch log group + X-Ray active tracing + error-rate alarm), API Gateway v2 (HTTP API with `ANY /{proxy+}` → Lambda integration, per-environment CORS)
 - GitHub Actions CI/CD pipelines for frontend, backend, infrastructure, and security scanning; Vercel frontend deployment; Lambda backend deployment; per-environment configuration
+- Python CI job that runs ruff + pytest against the cli/ package
 
 ### Changed
 
 - Collapsed dual-backend architecture (Fastify `apps/api/` + FastAPI `backend/`) to a single FastAPI backend; `docker-compose.yml` updated to build from `./backend` on port 8000 with `web` depending on `backend`
 - Consolidated duplicate AI module: removed top-level `ai/` draft in favour of `backend/app/services/ai/` as the sole authoritative AI module
+- Strategy docs annotated with rename to infralint and Apache 2.0 release
 
 ### Removed
 

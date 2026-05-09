@@ -52,6 +52,24 @@ jobs:
       - run: pnpm --filter @inframind/config build
       - run: pnpm test:ci
 
+  cli-python:
+    name: CLI (Python)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: pytest -q
+
   build:
     name: Build
     runs-on: ubuntu-latest
