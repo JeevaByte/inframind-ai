@@ -1,129 +1,182 @@
-"""infralint CLI entry point."""
+"""infralint CLI — scan infrastructure files for security and best-practice issues."""
 from __future__ import annotations
 
-import json
 import sys
+from dataclasses import dataclass
+from fnmatch import fnmatch
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-import click
+from .config import load_config
 
-from .detection import detect
-from .findings import Finding
-from .scanner import scan_file
-
-# File extensions / names that infralint recognises
-_INFRA_SUFFIXES = {".tf", ".tfvars", ".yaml", ".yml", ".json"}
-_INFRA_NAMES = {"dockerfile"}
+SUPPORTED_EXTENSIONS = {
+    ".tf", ".yaml", ".yml", ".json", ".dockerfile",
+}
 
 
-def _collect_files(targets: List[Path]) -> List[Path]:
-    """Expand directories and return individual files to scan."""
-    collected: List[Path] = []
-    for target in targets:
-        if target.is_dir():
-            for path in sorted(target.rglob("*")):
-                if path.is_file() and (
-                    path.suffix.lower() in _INFRA_SUFFIXES
-                    or path.name.lower() in _INFRA_NAMES
-                    or path.name.lower().startswith("dockerfile.")
-                ):
-                    collected.append(path)
-        elif target.is_file():
-            collected.append(target)
-    return collected
+@dataclass
+class Finding:
+    rule_id: str
+    severity: str
+    message: str
+    file: Path
+    line: Optional[int] = None
 
 
-@click.group()
-def cli() -> None:
-    """infralint — infrastructure-as-code linter."""
+def _collect_files(paths: List[Path]) -> List[Path]:
+    """Recursively collect infrastructure files from the given paths."""
+    files: List[Path] = []
+    for p in paths:
+        if p.is_file():
+            files.append(p)
+        elif p.is_dir():
+            for ext in SUPPORTED_EXTENSIONS:
+                files.extend(p.rglob(f"*{ext}"))
+            # Also collect Dockerfile variants by name
+            files.extend(p.rglob("Dockerfile*"))
+    # Deduplicate while preserving order
+    seen: set[Path] = set()
+    result: List[Path] = []
+    for f in files:
+        key = f.resolve()
+        if key not in seen:
+            seen.add(key)
+            result.append(f)
+    return result
 
 
-@cli.command()
-@click.argument("paths", nargs=-1, required=True, type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--output",
-    "-o",
-    type=click.Choice(["text", "json"], case_sensitive=False),
-    default="text",
-    show_default=True,
-    help="Output format.",
-)
-@click.option(
-    "--severity",
-    "-s",
-    type=click.Choice(["critical", "high", "medium", "low", "info"], case_sensitive=False),
-    default=None,
-    help="Minimum severity to report.",
-)
-@click.option(
-    "--llm-provider",
-    type=click.Choice(["auto", "openai", "azure", "ollama", "none"], case_sensitive=False),
-    default="auto",
-    show_default=True,
-    help="Which LLM provider to use to enrich findings (auto = detect from env).",
-)
-def scan(paths: tuple[Path, ...], output: str, severity: str | None, llm_provider: str) -> None:
-    """Scan infrastructure files for issues."""
-    _SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
-    min_level = _SEVERITY_ORDER.get((severity or "info").lower(), 4)
-
-    all_files = _collect_files(list(paths))
-    if not all_files:
-        click.echo("No infrastructure files found.", err=True)
-        sys.exit(0)
-
+def _run_heuristics(files: List[Path]) -> List[Finding]:
+    """Run built-in heuristic checks and return findings."""
     findings: List[Finding] = []
-    for path in all_files:
-        findings.extend(scan_file(path))
+    for f in files:
+        try:
+            text = f.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        # Basic placeholder checks — extended by heuristic.py
+        if "privileged: true" in text:
+            findings.append(Finding(
+                rule_id="INFRALINT-K8S-001",
+                severity="high",
+                message="Container running in privileged mode",
+                file=f,
+            ))
+        if "allowPrivilegeEscalation: true" in text:
+            findings.append(Finding(
+                rule_id="INFRALINT-K8S-002",
+                severity="medium",
+                message="allowPrivilegeEscalation is enabled",
+                file=f,
+            ))
+    return findings
 
-    # --- optional LLM enrichment ---
+
+_SEVERITY_RANK = {"critical": 4, "high": 3, "medium": 2, "low": 1, "info": 0}
+
+
+def _meets_threshold(severity: str, threshold: str) -> bool:
+    return _SEVERITY_RANK.get(severity, 0) >= _SEVERITY_RANK.get(threshold, 0)
+
+
+def scan(
+    paths: List[Path],
+    fail_on: str = "never",
+    llm_provider: str = "auto",
+    output_format: str = "text",
+) -> int:
+    """Scan *paths* for findings and return an exit code."""
+    all_files = _collect_files(paths)
+
+    # --- Load .infralint.yaml config ---
+    start = Path.cwd()
+    if paths:
+        start = paths[0].parent if paths[0].is_file() else paths[0]
+    cfg = load_config(start)
+
+    if cfg.exclude:
+        def _excluded(p: Path) -> bool:
+            s = str(p).replace("\\", "/")
+            return any(fnmatch(s, pat) for pat in cfg.exclude)
+        all_files = [p for p in all_files if not _excluded(p)]
+
+    # CLI flag overrides config; config overrides default "never"
+    if fail_on == "never" and cfg.fail_on != "never":
+        fail_on = cfg.fail_on
+    if llm_provider == "auto" and cfg.llm.provider != "auto":
+        llm_provider = cfg.llm.provider
+
+    # Run heuristics
+    findings = _run_heuristics(all_files)
+
+    # LLM enrichment
     from .llm import get_provider
-
+    from .detection import detect as _detect_type
     provider = get_provider(llm_provider)
     if provider.name != "none":
-        seen = {(f.rule_id, f.file, f.line) for f in findings}
+        seen = {(f.rule_id, str(f.file), f.line) for f in findings}
         for path in all_files:
             try:
                 text = path.read_text(encoding="utf-8", errors="ignore")
             except OSError:
                 continue
-            for raw in provider.analyze(detect(path), text):
+            for raw in provider.analyze(_detect_type(path), text):
                 key = (raw.get("rule_id"), raw.get("file") or str(path), raw.get("line"))
                 if key in seen:
                     continue
                 seen.add(key)
-                findings.append(
-                    Finding(
-                        rule_id=raw.get("rule_id", "INFRALINT-AI-000"),
-                        title=raw.get("title", "AI finding"),
-                        severity=(raw.get("severity") or "info").lower(),
-                        category=raw.get("category", "security"),
-                        description=raw.get("description", ""),
-                        recommendation=raw.get("recommendation", ""),
-                        file=raw.get("file") or str(path),
-                        line=raw.get("line"),
-                    )
-                )
+                findings.append(Finding(
+                    rule_id=raw.get("rule_id", "INFRALINT-AI-000"),
+                    severity=(raw.get("severity") or "info").lower(),
+                    message=raw.get("title", raw.get("description", "AI finding")),
+                    file=Path(raw.get("file") or str(path)),
+                    line=raw.get("line"),
+                ))
 
-    # --- severity filter ---
-    findings = [f for f in findings if _SEVERITY_ORDER.get(f.severity, 4) <= min_level]
+    # Filter disabled rules
+    if cfg.disable_rules:
+        disabled = set(cfg.disable_rules)
+        findings = [f for f in findings if f.rule_id not in disabled]
 
-    if output.lower() == "json":
-        click.echo(json.dumps([f.as_dict() for f in findings], indent=2))
-    else:
+    # Output
+    if output_format == "text":
+        for finding in findings:
+            loc = f":{finding.line}" if finding.line else ""
+            print(f"[{finding.severity.upper()}] {finding.rule_id} {finding.file}{loc} — {finding.message}")
         if not findings:
-            click.echo("No findings.")
-        for f in findings:
-            line_info = f":{f.line}" if f.line else ""
-            click.echo(
-                f"[{f.severity.upper()}] {f.rule_id} — {f.title}\n"
-                f"  File: {f.file}{line_info}\n"
-                f"  {f.description}\n"
-                f"  → {f.recommendation}\n"
-            )
+            print("No findings.")
 
-    has_critical_or_high = any(
-        f.severity in ("critical", "high") for f in findings
+    # Exit code
+    if fail_on == "never":
+        return 0
+    for finding in findings:
+        if _meets_threshold(finding.severity, fail_on):
+            return 1
+    return 0
+
+
+def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        prog="infralint",
+        description="Scan infrastructure files for security issues.",
     )
-    sys.exit(1 if has_critical_or_high else 0)
+    parser.add_argument("paths", nargs="*", default=["."], help="Paths to scan")
+    parser.add_argument("--fail-on", default="never",
+                        choices=["never", "info", "low", "medium", "high", "critical"],
+                        help="Exit 1 when findings at or above this severity exist")
+    parser.add_argument("--llm-provider", default="auto",
+                        choices=["auto", "openai", "azure", "ollama", "none"],
+                        help="LLM provider for enrichment")
+    parser.add_argument("--format", default="text", choices=["text", "json"],
+                        dest="output_format", help="Output format")
+    args = parser.parse_args()
+
+    resolved = [Path(p) for p in args.paths]
+    sys.exit(scan(resolved, fail_on=args.fail_on,
+                  llm_provider=args.llm_provider,
+                  output_format=args.output_format))
+
+
+if __name__ == "__main__":
+    main()

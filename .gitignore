@@ -8,3 +8,9 @@ build/
 *.log
 coverage/
 .turbo/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+cli/src/*.egg-info/

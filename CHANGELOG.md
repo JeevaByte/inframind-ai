@@ -8,4 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Python CI job that runs ruff + pytest against the cli/ package.
 - Optional LLM enrichment via --llm-provider flag (OpenAI / Azure / Ollama).
+
+### Changed
+
+- Strategy docs annotated with rename to infralint and Apache 2.0 release.
+- PR template updated for OSS contributions (Apache 2.0 acknowledgement, rule/provider categories).

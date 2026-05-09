@@ -1,4 +1,3 @@
-import os
 
 from infralint.llm import get_provider, NullProvider
 

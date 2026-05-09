@@ -1,1 +1,1 @@
-"""infralint — infrastructure-as-code linting CLI."""
+"""infralint — infrastructure linting CLI."""

@@ -1,24 +1,28 @@
 ## Summary
 
-<!-- What does this PR do? Why? -->
+<!-- One paragraph: what does this PR change and why? -->
 
-## Changes
-
-- 
-- 
+Closes #
 
 ## Type of change
 
+- [ ] New rule (`INFRALINT-*`)
+- [ ] New file-type detector
+- [ ] New LLM provider
 - [ ] Bug fix
-- [ ] New feature
-- [ ] Refactor
-- [ ] Docs / chore
+- [ ] Documentation
+- [ ] Build / CI / chore
 
 ## Checklist
 
-- [ ] Code follows the [coding standards](../docs/CODING_STANDARDS.md)
-- [ ] Self-reviewed
-- [ ] Tests added / updated
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm lint` passes
-- [ ] `pnpm test` passes
+- [ ] Tests added or updated (`pytest`, `vitest`)
+- [ ] `CHANGELOG.md` `[Unreleased]` updated
+- [ ] No new top-level dependencies (or justified above)
+- [ ] No secrets, tokens, or customer data in samples or fixtures
+- [ ] I have read [CONTRIBUTING.md](../CONTRIBUTING.md) and
+      [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)
+- [ ] I license this contribution under **Apache 2.0** (the project license)
+
+## Verification
+
+<!-- Paste the commands you ran and their output (or screenshots) -->
