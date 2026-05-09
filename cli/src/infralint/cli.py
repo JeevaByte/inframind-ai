@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
 from typing import List, Optional
@@ -108,8 +108,29 @@ def scan(
     # Run heuristics
     findings = _run_heuristics(all_files)
 
-    # LLM enrichment placeholder (populated by Agent 03)
-    # findings = _enrich_with_llm(findings, provider=llm_provider, model=cfg.llm.model)
+    # LLM enrichment
+    from .llm import get_provider
+    from .detection import detect as _detect_type
+    provider = get_provider(llm_provider)
+    if provider.name != "none":
+        seen = {(f.rule_id, str(f.file), f.line) for f in findings}
+        for path in all_files:
+            try:
+                text = path.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            for raw in provider.analyze(_detect_type(path), text):
+                key = (raw.get("rule_id"), raw.get("file") or str(path), raw.get("line"))
+                if key in seen:
+                    continue
+                seen.add(key)
+                findings.append(Finding(
+                    rule_id=raw.get("rule_id", "INFRALINT-AI-000"),
+                    severity=(raw.get("severity") or "info").lower(),
+                    message=raw.get("title", raw.get("description", "AI finding")),
+                    file=Path(raw.get("file") or str(path)),
+                    line=raw.get("line"),
+                ))
 
     # Filter disabled rules
     if cfg.disable_rules:
