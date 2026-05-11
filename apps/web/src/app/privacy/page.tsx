@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import { MarketingPage } from "@/components/layout/marketing-page"
 
 export const metadata: Metadata = {
-  title: "Privacy | InfraMind AI",
-  description: "Review the InfraMind AI privacy overview for uploaded infrastructure data, storage expectations, and operational transparency.",
+  title: "Privacy | infralint",
+  description: "Review the infralint privacy overview for uploaded infrastructure data, storage expectations, and operational transparency.",
 }
 
 const sections = [
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
     <MarketingPage
       eyebrow="Privacy"
       title="A privacy stance that matches the sensitivity of infrastructure data."
-      description="InfraMind AI is built around analyzing operational configuration files, so privacy expectations need to be explicit about what is uploaded, what is stored, and how results are handled."
+      description="infralint is built around analyzing operational configuration files, so privacy expectations need to be explicit about what is uploaded, what is stored, and how results are handled."
       sections={sections}
       ctaLabel="Review Terms"
       ctaHref="/terms"

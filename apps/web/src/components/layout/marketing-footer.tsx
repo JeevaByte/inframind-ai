@@ -33,10 +33,10 @@ export function MarketingFooter() {
         <div className="mb-8 grid gap-8 md:grid-cols-4">
           <div>
             <h3 className="mb-4 font-bold text-slate-900 dark:text-white">
-              InfraMind AI
+              infralint
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              AI-powered infrastructure analysis for DevOps and Cloud teams.
+              Infrastructure review for Terraform, Kubernetes, CloudFormation, Dockerfiles, and GitHub Actions.
             </p>
           </div>
 
@@ -59,7 +59,7 @@ export function MarketingFooter() {
         </div>
 
         <div className="border-t border-slate-200 pt-8 text-center text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
-          <p>&copy; {new Date().getFullYear()} InfraMind AI. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} infralint. All rights reserved.</p>
         </div>
       </div>
     </footer>

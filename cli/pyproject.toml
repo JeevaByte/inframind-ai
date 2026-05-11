@@ -5,9 +5,23 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "infralint"
 version = "0.1.0"
-description = "Infrastructure linting CLI"
+description = "AI-powered infrastructure-as-code review (Claude / OpenAI / Azure / Ollama)."
 requires-python = ">=3.10"
-dependencies = ["pyyaml>=6.0"]
+dependencies = [
+    "click>=8.1",
+    "pyyaml>=6.0",
+    "httpx>=0.27",
+    "rich>=13.7",
+]
+
+[project.optional-dependencies]
+claude = ["anthropic>=0.40"]
+openai = ["openai>=1.30"]
+all = ["anthropic>=0.40", "openai>=1.30"]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+
+[project.scripts]
+infralint = "infralint.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

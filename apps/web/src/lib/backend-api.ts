@@ -30,6 +30,11 @@ export interface BackendFileMetadata {
   checksum: string
 }
 
+export interface BackendFileList {
+  files: BackendFileMetadata[]
+  total: number
+}
+
 export interface AnalysisSubmission {
   analysis_id: string
   file_id: string
@@ -133,4 +138,12 @@ export async function getAnalysisResult(analysisId: string) {
 
 export async function getFileMetadata(fileId: string) {
   return apiRequest<BackendFileMetadata>(`/api/v1/files/${fileId}`)
+}
+
+export async function listFiles() {
+  return apiRequest<BackendFileList>("/api/v1/files/")
+}
+
+export async function listAnalysesForFile(fileId: string) {
+  return apiRequest<BackendAnalysisResult[]>(`/api/v1/analysis/file/${fileId}`)
 }

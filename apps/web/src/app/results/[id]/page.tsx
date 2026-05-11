@@ -238,7 +238,7 @@ export default function ResultsPage() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "InfraMind AI Analysis Results",
+          title: "infralint Analysis Results",
           text: "Review the infrastructure analysis results.",
           url: shareUrl,
         })
@@ -268,7 +268,7 @@ export default function ResultsPage() {
     let currentY = margin
 
     const lines = [
-      "InfraMind AI Analysis Report",
+      "infralint Analysis Report",
       "",
       `Files: ${resultsState.fileNames.join(", ")}`,
       `Average score: ${resultsState.averageScore !== null ? `${resultsState.averageScore}%` : "N/A"}`,
@@ -330,7 +330,7 @@ export default function ResultsPage() {
       }
     })
 
-    document.save(`inframind-analysis-${analysisIds[0] || "report"}.pdf`)
+    document.save(`infralint-analysis-${analysisIds[0] || "report"}.pdf`)
     setActionMessage("Analysis report downloaded.")
   }
 

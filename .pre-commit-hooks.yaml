@@ -1,0 +1,12 @@
+# pre-commit hooks exposed by infralint.
+# Consumers add this repo to their .pre-commit-config.yaml — see
+# .pre-commit-config.yaml at the repo root for an example.
+
+- id: infralint
+  name: infralint
+  description: AI-powered infrastructure-as-code review (Terraform, K8s, CloudFormation, Dockerfile, GitHub Actions)
+  entry: infralint
+  language: python
+  pass_filenames: true
+  types_or: [yaml, terraform, dockerfile, json]
+  require_serial: false

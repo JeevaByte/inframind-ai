@@ -18,18 +18,18 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export function StatsCard({ label, value, icon }: StatsCardProps) {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="surface-panel rounded-[1.75rem] transition-shadow hover:shadow-2xl">
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
+            <p className="mb-2 text-sm text-muted-foreground">
               {label}
             </p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">
+            <p className="text-3xl font-bold text-foreground">
               {value}
             </p>
           </div>
-          <div className="text-blue-500 dark:text-blue-400">
+          <div className="rounded-2xl bg-primary/10 p-3 text-primary">
             {iconMap[icon] || <FileText className="h-8 w-8" />}
           </div>
         </div>

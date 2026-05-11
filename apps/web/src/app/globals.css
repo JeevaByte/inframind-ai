@@ -3,30 +3,110 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 36 33% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 214 32% 94%;
+  --muted-foreground: 215 16% 35%;
+  --accent: 190 95% 90%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214 25% 88%;
+  --input: 214 25% 88%;
+  --ring: 217 91% 60%;
+  --chart-1: 217 91% 60%;
+  --chart-2: 187 85% 43%;
+  --chart-3: 262 83% 58%;
+  --chart-4: 32 95% 56%;
+  --chart-5: 142 71% 45%;
+  --radius: 1rem;
+  --sidebar-background: 220 33% 98%;
+  --sidebar-foreground: 222 47% 11%;
+  --sidebar-primary: 217 91% 60%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 214 32% 94%;
+  --sidebar-accent-foreground: 222 47% 11%;
+  --sidebar-border: 214 25% 88%;
+  --sidebar-ring: 217 91% 60%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.dark {
+  --background: 222 47% 8%;
+  --foreground: 210 40% 98%;
+  --card: 222 44% 11%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 44% 11%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 199 89% 62%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 214 20% 73%;
+  --accent: 189 70% 18%;
+  --accent-foreground: 188 95% 91%;
+  --destructive: 0 63% 45%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217 33% 21%;
+  --input: 217 33% 21%;
+  --ring: 199 89% 62%;
+  --chart-1: 199 89% 62%;
+  --chart-2: 160 84% 48%;
+  --chart-3: 262 83% 68%;
+  --chart-4: 42 96% 58%;
+  --chart-5: 342 82% 65%;
+  --sidebar-background: 222 47% 9%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 199 89% 62%;
+  --sidebar-primary-foreground: 222 47% 11%;
+  --sidebar-accent: 217 33% 17%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 217 33% 21%;
+  --sidebar-ring: 199 89% 62%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
   }
-}
 
-html.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
+  html {
+    scroll-behavior: smooth;
+  }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
+    background-image:
+      radial-gradient(circle at top, hsl(var(--accent) / 0.35), transparent 32%),
+      radial-gradient(circle at bottom right, hsl(var(--primary) / 0.18), transparent 28%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.28);
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .surface-panel {
+    @apply border border-border/70 bg-card/80 shadow-[0_24px_80px_-32px_hsl(var(--foreground)/0.28)] backdrop-blur-xl;
+  }
+
+  .hero-glow {
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.1), 0 24px 90px -30px hsl(var(--primary) / 0.45);
   }
 }

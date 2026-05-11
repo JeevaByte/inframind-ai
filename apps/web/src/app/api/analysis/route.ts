@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-const FASTAPI_URL = (process.env.FASTAPI_URL || "http://localhost:8000").replace(/\/$/, "")
+const FASTAPI_URL = (process.env["FASTAPI_URL"] || "http://localhost:8000").replace(/\/$/, "")
 
 export async function POST(request: Request) {
   try {

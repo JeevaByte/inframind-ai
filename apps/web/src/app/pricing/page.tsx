@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import { MarketingPage } from "@/components/layout/marketing-page"
 
 export const metadata: Metadata = {
-  title: "Pricing | InfraMind AI",
-  description: "Explore InfraMind AI pricing models for individual engineers, platform teams, and enterprise infrastructure review workflows.",
+  title: "Pricing | infralint",
+  description: "Explore infralint pricing models for individual engineers, platform teams, and enterprise infrastructure review workflows.",
 }
 
 const sections = [
@@ -34,7 +34,7 @@ export default function PricingPage() {
     <MarketingPage
       eyebrow="Pricing"
       title="Pricing shaped around the way your infrastructure team ships."
-      description="InfraMind AI supports evaluation paths for individual operators, collaborative platform teams, and enterprise change programs. Choose the rollout model that matches your analysis volume, governance needs, and review cadence."
+      description="infralint supports evaluation paths for individual operators, collaborative platform teams, and enterprise change programs. Choose the rollout model that matches your analysis volume, governance needs, and review cadence."
       sections={sections}
       ctaLabel="Request Pricing Details"
       ctaHref="/contact"

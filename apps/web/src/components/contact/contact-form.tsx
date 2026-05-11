@@ -103,7 +103,7 @@ export function ContactForm() {
               id="contact-company"
               value={form.company}
               onChange={(event) => setForm((prev) => ({ ...prev, company: event.target.value }))}
-              placeholder="InfraMind AI"
+              placeholder="infralint"
             />
           </div>
 

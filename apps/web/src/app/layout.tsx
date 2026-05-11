@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "InfraMind AI - Infrastructure Analysis Tool",
-  description: "AI-powered infrastructure analysis for Terraform, CloudFormation, and Kubernetes",
+  title: "infralint - Infrastructure Review",
+  description: "Infrastructure review for Terraform, CloudFormation, Kubernetes, Dockerfiles, and GitHub Actions.",
 };
 
 export default function RootLayout({

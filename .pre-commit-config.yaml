@@ -1,0 +1,15 @@
+# Example .pre-commit-config.yaml — copy this into your own repo to gate
+# infrastructure changes on infralint findings.
+#
+# Then run:
+#     pip install pre-commit
+#     pre-commit install
+#
+# infralint will run automatically on every commit that touches IaC files.
+
+repos:
+  - repo: https://github.com/JeevaByte/inframind-ai
+    rev: v0.1.0
+    hooks:
+      - id: infralint
+        args: [--fail-on, high]

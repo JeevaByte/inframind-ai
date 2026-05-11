@@ -10,33 +10,38 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+    <nav className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-              <span className="text-sm font-bold text-white">IA</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-cyan-400">
+              <span className="text-sm font-bold text-white">IL</span>
             </div>
-            <span className="text-lg font-bold text-slate-900 dark:text-white">
-              InfraMind AI
+            <span className="text-lg font-bold text-foreground">
+              infralint
             </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/dashboard" className="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+            <Link href="/dashboard" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               Dashboard
             </Link>
-            <Link href="/upload" className="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+            <Link href="/upload" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               Upload
             </Link>
-            <Link href="/#features" className="text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+            <Link href="/#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               Features
             </Link>
           </div>
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Button className="hidden md:flex">Sign In</Button>
+            <Button asChild variant="ghost" className="hidden md:flex">
+              <Link href="/signin">Sign In</Link>
+            </Button>
+            <Button asChild className="hidden rounded-full md:flex">
+              <Link href="/register">Create Account</Link>
+            </Button>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="md:hidden"
@@ -53,17 +58,22 @@ export function Navbar() {
         </div>
 
         {isOpen && (
-          <div className="md:hidden border-t border-slate-200 dark:border-slate-800 py-4 space-y-2">
-            <Link href="/dashboard" className="block text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+          <div className="space-y-3 border-t border-border/80 py-4 md:hidden">
+            <Link href="/dashboard" className="block text-sm text-muted-foreground transition-colors hover:text-foreground">
               Dashboard
             </Link>
-            <Link href="/upload" className="block text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+            <Link href="/upload" className="block text-sm text-muted-foreground transition-colors hover:text-foreground">
               Upload
             </Link>
-            <Link href="/#features" className="block text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+            <Link href="/#features" className="block text-sm text-muted-foreground transition-colors hover:text-foreground">
               Features
             </Link>
-            <Button className="w-full">Sign In</Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/signin">Sign In</Link>
+            </Button>
+            <Button asChild className="w-full">
+              <Link href="/register">Create Account</Link>
+            </Button>
           </div>
         )}
       </div>

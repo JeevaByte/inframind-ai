@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import { MarketingPage } from "@/components/layout/marketing-page"
 
 export const metadata: Metadata = {
-  title: "Documentation | InfraMind AI",
-  description: "Read the InfraMind AI product documentation for onboarding, analysis workflows, reporting behavior, and integration guidance.",
+  title: "Documentation | infralint",
+  description: "Read the infralint product documentation for onboarding, analysis workflows, reporting behavior, and integration guidance.",
 }
 
 const sections = [
@@ -25,7 +25,7 @@ const sections = [
   {
     title: "API and Integration",
     description:
-      "InfraMind AI can be connected to backend analysis services, CI checks, and policy automation paths so infrastructure review becomes part of the standard delivery workflow.",
+      "infralint can be connected to backend analysis services, CI checks, and policy automation paths so infrastructure review becomes part of the standard delivery workflow.",
   },
 ]
 
@@ -34,7 +34,7 @@ export default function DocumentationPage() {
     <MarketingPage
       eyebrow="Documentation"
       title="Documentation for teams shipping infrastructure with more confidence."
-      description="Use the documentation hub as the reference point for onboarding, analysis workflow setup, reporting behavior, and future integration points across the InfraMind AI platform."
+      description="Use the documentation hub as the reference point for onboarding, analysis workflow setup, reporting behavior, and future integration points across the infralint platform."
       sections={sections}
       ctaLabel="Open Upload Flow"
       ctaHref="/upload"

@@ -24,6 +24,11 @@ export function RecentAnalyses({ analyses }: RecentAnalysesProps) {
         <CardTitle>Recent Analyses</CardTitle>
       </CardHeader>
       <CardContent>
+        {analyses.length === 0 ? (
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            No analyses yet. Upload infrastructure files to generate your first report.
+          </p>
+        ) : (
         <div className="space-y-4">
           {analyses.map((analysis) => (
             <Link
@@ -54,6 +59,7 @@ export function RecentAnalyses({ analyses }: RecentAnalysesProps) {
             </Link>
           ))}
         </div>
+        )}
       </CardContent>
     </Card>
   )

@@ -2,15 +2,15 @@ import type { Metadata } from "next"
 import { MarketingPage } from "@/components/layout/marketing-page"
 
 export const metadata: Metadata = {
-  title: "About | InfraMind AI",
-  description: "Learn what InfraMind AI builds for DevOps, platform, security, and cloud teams reviewing infrastructure changes.",
+  title: "About | infralint",
+  description: "Learn what infralint builds for DevOps, platform, security, and cloud teams reviewing infrastructure changes.",
 }
 
 const sections = [
   {
     title: "What We Build",
     description:
-      "InfraMind AI helps engineering teams inspect infrastructure definitions before changes reach production, with automated feedback on security posture, governance risk, and optimization opportunities.",
+      "infralint helps engineering teams inspect infrastructure definitions before changes reach production, with automated feedback on security posture, governance risk, and optimization opportunities.",
   },
   {
     title: "Who It Serves",
@@ -20,7 +20,7 @@ const sections = [
   {
     title: "Why It Matters",
     description:
-      "Manual infrastructure review is slow and inconsistent. InfraMind AI aims to make the first pass of analysis immediate, structured, and repeatable across formats and cloud environments.",
+      "Manual infrastructure review is slow and inconsistent. infralint aims to make the first pass of analysis immediate, structured, and repeatable across formats and cloud environments.",
   },
   {
     title: "How Teams Adopt It",
@@ -34,7 +34,7 @@ export default function AboutPage() {
     <MarketingPage
       eyebrow="About"
       title="Built for teams that want infrastructure review to move at engineering speed."
-      description="InfraMind AI brings together analysis, summarization, and reporting so infrastructure change review becomes easier to understand, easier to share, and easier to operationalize."
+      description="infralint brings together analysis, summarization, and reporting so infrastructure change review becomes easier to understand, easier to share, and easier to operationalize."
       sections={sections}
     />
   )

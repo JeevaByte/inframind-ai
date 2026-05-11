@@ -3,15 +3,15 @@ import { ContactForm } from "@/components/contact/contact-form"
 import { MarketingPage } from "@/components/layout/marketing-page"
 
 export const metadata: Metadata = {
-  title: "Contact | InfraMind AI",
-  description: "Contact the InfraMind AI team about rollout, integration, pricing, and infrastructure review implementation details.",
+  title: "Contact | infralint",
+  description: "Contact the infralint team about rollout, integration, pricing, and infrastructure review implementation details.",
 }
 
 const sections = [
   {
     title: "Sales and Evaluation",
     description:
-      "Reach out when you want to discuss team rollout, pricing structure, or how InfraMind AI could fit into existing platform engineering and governance processes.",
+      "Reach out when you want to discuss team rollout, pricing structure, or how infralint could fit into existing platform engineering and governance processes.",
   },
   {
     title: "Technical Questions",
@@ -35,7 +35,7 @@ export default function ContactPage() {
     <MarketingPage
       eyebrow="Contact"
       title="Talk to the team about rollout, integration, or implementation details."
-      description="InfraMind AI can support different adoption paths depending on your stack, review workflow, and governance requirements. Use this page as the starting point for that conversation."
+      description="infralint can support different adoption paths depending on your stack, review workflow, and governance requirements. Use this page as the starting point for that conversation."
       sections={sections}
       ctaLabel="Start an Analysis"
       ctaHref="/upload"

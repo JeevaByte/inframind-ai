@@ -11,7 +11,8 @@ CONFIG_FILENAME = ".infralint.yaml"
 
 @dataclass
 class LLMConfig:
-    provider: str = "auto"     # auto | openai | azure | ollama | none
+    # auto | claude | openai | azure | ollama | none. Claude is recommended.
+    provider: str = "auto"
     model: str | None = None
 
 
