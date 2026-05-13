@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     max_file_size_mb: int = 50
     allowed_extensions: str = "tf,tfvars,json,yaml,yml,hcl,template,dockerfile"
+    repo_scan_clone_timeout_seconds: int = 120
+    repo_scan_scanner_timeout_seconds: int = 180
 
     # AI analysis
     openai_api_key: Optional[str] = None

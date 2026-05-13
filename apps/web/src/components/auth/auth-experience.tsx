@@ -18,6 +18,7 @@ type AuthMode = "signin" | "register"
 
 interface AuthExperienceProps {
   mode: AuthMode
+  githubEnabled: boolean
 }
 
 function GitHubMark(props: React.SVGProps<SVGSVGElement>) {
@@ -40,7 +41,7 @@ const authCopy = {
     alternatePrompt: "Need an account?",
     githubLabel: "Continue with GitHub",
     emailNotice:
-      "Email and password sign-in is still a UI path only. Use GitHub today or wire a backend identity provider next.",
+      "Local sign-in is enabled for this environment. It creates a lightweight session cookie so you can continue into the dashboard while the full backend identity layer is completed.",
   },
   register: {
     eyebrow: "Register",
@@ -53,7 +54,7 @@ const authCopy = {
     alternatePrompt: "Already have an account?",
     githubLabel: "Sign up with GitHub",
     emailNotice:
-      "Email registration is staged as a frontend path for now. GitHub OAuth is the quickest route once client credentials are configured.",
+      "Local registration is enabled for this environment. It creates a lightweight session cookie so you can continue into the dashboard while the full backend identity layer is completed.",
   },
 } as const
 
@@ -71,6 +72,14 @@ function getFeedback(
       title: login ? `GitHub connected for @${login}` : "GitHub connected",
       description:
         "The OAuth round-trip completed successfully. Persisting a signed-in session is the next backend step if you want full account state.",
+    }
+  }
+
+  if (status === "logged_out") {
+    return {
+      variant: "default",
+      title: "Signed out",
+      description: "The local session cookie was cleared successfully.",
     }
   }
 
@@ -117,10 +126,29 @@ function getFeedback(
     }
   }
 
+  if (error === "local_missing_fields") {
+    return {
+      variant: "destructive",
+      title: mode === "signin" ? "Email and password are required" : "Complete the required fields",
+      description:
+        mode === "signin"
+          ? "Enter your work email and password to continue with the local sign-in path."
+          : "Enter your work email and password to continue with the local registration path.",
+    }
+  }
+
+  if (error === "local_password_too_short") {
+    return {
+      variant: "destructive",
+      title: "Password is too short",
+      description: "Use at least 8 characters for the local registration path.",
+    }
+  }
+
   return null
 }
 
-export function AuthExperience({ mode }: AuthExperienceProps) {
+export function AuthExperience({ mode, githubEnabled }: AuthExperienceProps) {
   const searchParams = useSearchParams()
   const [localNotice, setLocalNotice] = useState<string | null>(null)
   const copy = authCopy[mode]
@@ -170,7 +198,7 @@ export function AuthExperience({ mode }: AuthExperienceProps) {
             <Sparkles className="h-4 w-4" />
             <AlertTitle>Operator note</AlertTitle>
             <AlertDescription>
-              The page is production-grade UI, while local email auth remains a placeholder until a persistent session backend is added.
+              The page is production-grade UI, and the local email path now creates a lightweight session for this environment while a persistent identity backend is still pending.
             </AlertDescription>
           </Alert>
         </motion.section>
@@ -202,12 +230,34 @@ export function AuthExperience({ mode }: AuthExperienceProps) {
                 </Alert>
               )}
 
-              <Button asChild size="lg" className="h-12 w-full rounded-xl gap-2">
-                <Link href={`/api/auth/github?mode=${mode}`}>
+              {githubEnabled ? (
+                <Button asChild size="lg" className="h-12 w-full rounded-xl gap-2">
+                  <Link href={`/api/auth/github?mode=${mode}`}>
+                    <GitHubMark className="h-5 w-5" />
+                    {copy.githubLabel}
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="outline"
+                  className="h-12 w-full rounded-xl gap-2 border-dashed border-border/80 bg-background/60 text-muted-foreground"
+                  onClick={() => setLocalNotice(copy.emailNotice)}
+                >
                   <GitHubMark className="h-5 w-5" />
-                  {copy.githubLabel}
-                </Link>
-              </Button>
+                  GitHub auth unavailable in this environment
+                </Button>
+              )}
+
+              {!githubEnabled && !feedback && (
+                <Alert className="rounded-[1.5rem] border-primary/15 bg-primary/5">
+                  <AlertTitle>GitHub OAuth is not enabled locally</AlertTitle>
+                  <AlertDescription>
+                    Add GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET to apps/web/.env.local to enable the GitHub OAuth path. Until then, the local form can sign you in and continue into the dashboard in this environment.
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">
                 <Separator className="bg-border/70" />
@@ -215,13 +265,8 @@ export function AuthExperience({ mode }: AuthExperienceProps) {
                 <Separator className="bg-border/70" />
               </div>
 
-              <form
-                className="space-y-4"
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  setLocalNotice(copy.emailNotice)
-                }}
-              >
+              <form className="space-y-4" action="/api/auth/local" method="post">
+                <input type="hidden" name="mode" value={mode} />
                 {mode === "register" && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
@@ -237,7 +282,7 @@ export function AuthExperience({ mode }: AuthExperienceProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Work email</Label>
-                  <Input id="email" name="email" type="email" placeholder="team@company.com" autoComplete="email" />
+                  <Input id="email" name="email" type="email" placeholder="team@company.com" autoComplete="email" required />
                 </div>
 
                 <div className="space-y-2">
@@ -248,6 +293,8 @@ export function AuthExperience({ mode }: AuthExperienceProps) {
                     type="password"
                     placeholder={mode === "signin" ? "Enter your password" : "Create a password"}
                     autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                    required
+                    minLength={mode === "register" ? 8 : 1}
                   />
                 </div>
 

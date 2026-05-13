@@ -8,5 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default function SignInPage() {
-  return <AuthExperience mode="signin" />
+  const githubEnabled = Boolean(process.env["GITHUB_CLIENT_ID"] && process.env["GITHUB_CLIENT_SECRET"])
+
+  return <AuthExperience mode="signin" githubEnabled={githubEnabled} />
 }

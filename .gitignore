@@ -8,3 +8,9 @@ build/
 *.log
 coverage/
 .turbo/
+__pycache__/
+*.py[cod]
+*.egg-info/
+uploads/
+*.pdf
+apps/web/aggregated-results.json

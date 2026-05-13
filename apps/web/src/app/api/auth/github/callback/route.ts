@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { setGitHubSession } from "@/lib/github-session"
+
 function getAppOrigin(request: NextRequest) {
   return (process.env["NEXT_PUBLIC_APP_URL"] || request.nextUrl.origin).replace(/\/$/, "")
 }
@@ -93,6 +95,11 @@ export async function GET(request: NextRequest) {
   redirectUrl.searchParams.set("status", "github_connected")
   if (userPayload.login) {
     redirectUrl.searchParams.set("login", userPayload.login)
+    await setGitHubSession({
+      accessToken: tokenPayload.access_token,
+      login: userPayload.login,
+      connectedAt: new Date().toISOString(),
+    })
   }
 
   const response = NextResponse.redirect(redirectUrl)
