@@ -29,6 +29,9 @@ export function Navbar() {
             <Link href="/upload" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               Upload
             </Link>
+            <Link href="/fieldready" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+              FieldReady
+            </Link>
             <Link href="/#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
               Features
             </Link>
@@ -64,6 +67,9 @@ export function Navbar() {
             </Link>
             <Link href="/upload" className="block text-sm text-muted-foreground transition-colors hover:text-foreground">
               Upload
+            </Link>
+            <Link href="/fieldready" className="block text-sm text-muted-foreground transition-colors hover:text-foreground">
+              FieldReady
             </Link>
             <Link href="/#features" className="block text-sm text-muted-foreground transition-colors hover:text-foreground">
               Features

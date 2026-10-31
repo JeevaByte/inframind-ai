@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     openai_max_retries: int = 2
     openai_max_excerpt_chars: int = 12000
     use_mock_ai: bool = False
+    fieldready_contact_email: Optional[str] = None
 
     # CORS
     cors_origins: str = "http://localhost:3000,http://localhost:5173"

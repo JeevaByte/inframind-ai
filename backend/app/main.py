@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import analysis, files, health, repo_scan
+from app.routers import analysis, fieldready, files, health, repo_scan
 
 logging.basicConfig(
     level=logging.DEBUG if get_settings().app_debug else logging.INFO,
@@ -55,6 +55,7 @@ def create_app() -> FastAPI:
     app.include_router(files.router)
     app.include_router(analysis.router)
     app.include_router(repo_scan.router)
+    app.include_router(fieldready.router)
 
     return app
 
