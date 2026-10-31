@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import urlparse
 
 from fastapi.testclient import TestClient
 
@@ -159,8 +160,9 @@ def test_agent_runs_the_tool_sequence_and_returns_source_metadata(monkeypatch):
     assert result.risk.level == "elevated"
     assert result.actions
     assert result.forecast_status == "available"
-    assert any("weather.gov" in source.url for source in result.sources)
-    assert any("nifa.usda.gov" in source.url for source in result.sources)
+    source_hosts = {urlparse(source.url).hostname for source in result.sources}
+    assert "api.weather.gov" in source_hosts
+    assert "www.nifa.usda.gov" in source_hosts
 
 
 def test_request_rejects_coordinates_outside_pilot_region():
