@@ -102,6 +102,12 @@ If `OPENAI_API_KEY` is not configured or the model call fails, the backend falls
 
 Review-ready infrastructure samples live in [samples](./samples) and include intentionally risky Terraform, Kubernetes, Dockerfile, CloudFormation, and GitHub Actions examples for a stronger AI demo.
 
+## FieldReady climate-resilience pilot
+
+FieldReady is an experimental Strands Agents SDK experience for corn and soybean growers in the contiguous United States. It summarizes National Weather Service alerts and forecasts with cautious, sourced follow-up guidance. Open `/fieldready` in the web app. It requires AWS credentials and Amazon Bedrock model access; submitted coordinates are not persisted by the application.
+
+See [FieldReady pilot scope, setup, evaluation, and submission outline](./docs/FIELDREADY.md) for limitations and details.
+
 ---
 
 ## Documentation
