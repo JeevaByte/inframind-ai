@@ -5,7 +5,9 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 import app.services.fieldready_service as fieldready_service
+from app.config import get_settings
 from app.main import app
+from app.models.fieldready import FieldReadyRequest
 
 client = TestClient(app)
 
@@ -52,6 +54,15 @@ def test_assessment_marks_both_sources_unavailable():
 
     assert risk["level"] == "unavailable"
     assert risk["drought_alert_status"] == "unavailable"
+
+
+def test_untrusted_alert_link_is_replaced_with_official_nws_url():
+    fallback = "https://api.weather.gov/alerts/active"
+
+    assert fieldready_service._nws_url_or_fallback("javascript:alert(1)", fallback) == fallback
+    assert fieldready_service._nws_url_or_fallback(
+        "https://api.weather.gov/alerts/123", fallback
+    ) == "https://api.weather.gov/alerts/123"
 
 
 def test_fetches_alerts_and_forecast_from_nws(monkeypatch):
@@ -106,6 +117,50 @@ def test_fetches_alerts_and_forecast_from_nws(monkeypatch):
     assert conditions["alerts"][0]["event"] == "Heat Advisory"
     assert len(conditions["sources"]) == 2
     assert conditions["forecast_periods"][0]["temperature"] == 96
+
+
+def test_agent_runs_the_tool_sequence_and_returns_source_metadata(monkeypatch):
+    class FakeAgent:
+        def __init__(self, tools, system_prompt):
+            self.tools = tools
+            assert "FieldReady" in system_prompt
+
+        def __call__(self, _prompt):
+            for registered_tool in self.tools:
+                registered_tool()
+            return "Check the local forecast and contact Extension for field-specific advice."
+
+    monkeypatch.setattr(fieldready_service, "Agent", FakeAgent)
+    monkeypatch.setattr(
+        fieldready_service,
+        "_fetch_official_conditions",
+        lambda *_args: {
+            "retrieved_at": "2026-10-31T12:00:00+00:00",
+            "alerts": [],
+            "alert_status": "available",
+            "forecast_status": "available",
+            "forecast_periods": [{"temperature": 97, "temperature_unit": "F"}],
+            "sources": [
+                {"title": "National Weather Service forecast", "url": "https://api.weather.gov/forecast"}
+            ],
+        },
+    )
+
+    result = fieldready_service.FieldReadyService(get_settings()).advise(
+        FieldReadyRequest(
+            latitude=41.25,
+            longitude=-96,
+            crop="corn",
+            growth_stage="flowering",
+        )
+    )
+
+    assert "Extension" in result.guidance
+    assert result.risk.level == "elevated"
+    assert result.actions
+    assert result.forecast_status == "available"
+    assert any("weather.gov" in source.url for source in result.sources)
+    assert any("nifa.usda.gov" in source.url for source in result.sources)
 
 
 def test_request_rejects_coordinates_outside_pilot_region():

@@ -23,7 +23,7 @@ class FieldReadyAlert(BaseModel):
 class FieldReadySource(BaseModel):
     title: str
     url: str
-    retrieved_at: str
+    retrieved_at: str | None = None
 
 
 class FieldReadyRisk(BaseModel):
@@ -35,6 +35,7 @@ class FieldReadyRisk(BaseModel):
 
 class FieldReadyResponse(BaseModel):
     guidance: str
+    actions: list[str]
     risk: FieldReadyRisk
     alerts_status: Literal["available", "unavailable"]
     forecast_status: Literal["available", "unavailable"]
